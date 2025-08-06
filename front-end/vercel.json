@@ -1,6 +1,6 @@
 {
   "buildCommand": "ng build --configuration production",
-  "outputDirectory": "dist/front-end",
+  "outputDirectory": "dist/front-end/browser",
   "framework": "angular",
   "rewrites": [
     {
