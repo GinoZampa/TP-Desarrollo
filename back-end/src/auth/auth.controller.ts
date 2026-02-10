@@ -19,6 +19,7 @@ import { Rol } from '../common/enums/rol.enum';
 import { ActiveUser } from 'src/common/decorators/active-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { UserActiveInterface } from 'src/common/interfaces/user-active.interface';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
 interface RequestWithUser extends Request {
   user: {
@@ -27,11 +28,15 @@ interface RequestWithUser extends Request {
     idUs: number;
   };
 }
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
+  @ApiOperation({ summary: 'Register new user' })
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid data' })
   @UsePipes(new ValidationPipe({ transform: true }))
   register(
     @Body()
@@ -41,6 +46,9 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: 'Login' })
+  @ApiResponse({ status: 200, description: 'Login successful, returns JWT token' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @UsePipes(new ValidationPipe({ transform: true }))
   async login(
     @Body()
@@ -50,6 +58,10 @@ export class AuthController {
   }
 
   @Get('profile')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get authenticated user profile' })
+  @ApiResponse({ status: 200, description: 'User profile' })
+  @ApiResponse({ status: 401, description: 'Not authenticated' })
   @Roles(Rol.ADMIN, Rol.USER)
   @UseGuards(AuthGuard, RolesGuard)
   profile(@ActiveUser() user: UserActiveInterface) {

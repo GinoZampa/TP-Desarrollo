@@ -13,7 +13,9 @@ import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { Shipment } from './entities/shipment.entity';
 import { Auth } from 'src/auth/decorators/auth.decorators';
 import { Rol } from 'src/common/enums/rol.enum';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Shipments')
 @Controller('shipments')
 export class ShipmentsController {
   constructor(private readonly shipmentsService: ShipmentsService) {}
@@ -25,6 +27,7 @@ export class ShipmentsController {
   }
 
   @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
   @Get()
   findAll(): Promise<Shipment[]> {
     return this.shipmentsService.findAll();
@@ -37,6 +40,7 @@ export class ShipmentsController {
   }
 
   @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
   @Patch(':idSh')
   update(
     @Param('idSh') idSh: number,
@@ -46,6 +50,7 @@ export class ShipmentsController {
   }
 
   @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
   @Delete(':idSh')
   remove(@Param('idSh') idSh: number): Promise<void> {
     return this.shipmentsService.remove(+idSh);

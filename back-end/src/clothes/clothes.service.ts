@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { CreateClotheDto } from './dto/create-clothe.dto';
@@ -19,13 +19,20 @@ export class ClothesService {
 
   findAll(): Promise<Clothe[]> {
     return this.clotheRepository.find({
-    where: { isActive: true }
-  });
+      where: { isActive: true }
+    });
   }
 
-  findOne(idCl: number): Promise<Clothe> {
-    return this.clotheRepository.findOne({ where: { idCl: idCl, isActive: true } });
+  async findOne(idCl: number): Promise<Clothe> {
+    const clothe = await this.clotheRepository.findOne({ where: { idCl: idCl, isActive: true } });
+
+    if (!clothe) {
+      throw new NotFoundException(`Clothing item with ID ${idCl} not found`);
+    }
+
+    return clothe;
   }
+
 
   async update(idCl: number, updateClotheDto: UpdateClotheDto,): Promise<Clothe> {
     await this.clotheRepository.update(idCl, updateClotheDto);

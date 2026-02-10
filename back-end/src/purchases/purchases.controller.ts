@@ -13,7 +13,9 @@ import { UpdatePurchaseDto } from './dto/update-purchase.dto';
 import { Purchase } from './entities/purchase.entity';
 import { Auth } from 'src/auth/decorators/auth.decorators';
 import { Rol } from 'src/common/enums/rol.enum';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Purchases')
 @Controller('purchases')
 export class PurchasesController {
   constructor(private readonly purchasesService: PurchasesService) { }
@@ -25,6 +27,7 @@ export class PurchasesController {
   }
 
   @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
   @Get()
   findAll(): Promise<Purchase[]> {
     return this.purchasesService.findAll();
@@ -37,12 +40,14 @@ export class PurchasesController {
   }
 
   @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
   @Patch(':idPu')
   update(@Param('idPu') idPu: number, @Body() updatePurchaseDto: UpdatePurchaseDto): Promise<Purchase> {
     return this.purchasesService.update(idPu, updatePurchaseDto);
   }
 
   @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
   @Delete(':idPu')
   remove(@Param('idPu') idPu: number): Promise<void> {
     return this.purchasesService.remove(idPu);
@@ -55,6 +60,7 @@ export class PurchasesController {
   }
 
   @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
   @Get('dates/:date1/:date2')
   findAllByDate(@Param('date1') date1: string, @Param('date2') date2: string): Promise<Purchase[]> {
     return this.purchasesService.findAllByDate(date1, date2);

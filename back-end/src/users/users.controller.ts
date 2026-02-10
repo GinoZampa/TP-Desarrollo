@@ -16,7 +16,9 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcryptjs from 'bcryptjs'
 import { Auth } from 'src/auth/decorators/auth.decorators';
 import { Rol } from 'src/common/enums/rol.enum';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(
@@ -30,12 +32,17 @@ export class UsersController {
   }
 
   @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all users (Admin only)' })
+  @ApiResponse({ status: 200, description: 'List of all users' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Get()
   findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
   @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
   @Get('stats')
   findAllWithStats() {
     return this.usersService.findAllWithStats();

@@ -7,7 +7,9 @@ import { ClothesService } from '../clothes/clothes.service';
 import { PurchaseClotheService } from 'src/purchase-clothe/purchase-clothe.service';
 import { STATUS } from '../shipments/entities/shipment.entity';
 import * as crypto from 'crypto';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
+@ApiTags('Webhook')
 @Controller('webhook')
 export class WebhookController {
     constructor(
