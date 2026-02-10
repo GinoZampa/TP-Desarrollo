@@ -36,6 +36,7 @@ import { PurchaseClothe } from './purchase-clothe/entities/purchase-clothe.entit
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
+        timezone: '-03:00',
         entities: [
           Clothe,
           Purchase,
@@ -60,4 +61,4 @@ import { PurchaseClothe } from './purchase-clothe/entities/purchase-clothe.entit
   controllers: [AppController, WebhookController, PurchaseClotheController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

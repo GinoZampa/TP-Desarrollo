@@ -101,55 +101,65 @@ export class WebhookController {
     }
 
     private validateSignature(
-        signature: string, 
-        requestId: string, 
+        signature: string,
+        requestId: string,
         body: any
     ): boolean {
         try {
             const parts = signature.split(',');
             const tsMatch = parts.find(p => p.startsWith('ts='));
             const v1Match = parts.find(p => p.startsWith('v1='));
-            
+
             if (!tsMatch || !v1Match) {
-            console.error('Header x-signature inválido');
-            return false;
+                console.error('Header x-signature inválido');
+                return false;
             }
-            
+
             const ts = tsMatch.replace('ts=', '');
             const hash = v1Match.replace('v1=', '');
-            
-            const dataId = body.data?.id;
-            if (!dataId) {
-            console.error('No se encontró data.id en el body');
-            return false;
+
+            let dataId: string;
+
+            if (body.data?.id) {
+                dataId = body.data.id.toString();
+            } else if (body.resource) {
+                if (typeof body.resource === 'string' && body.resource.includes('/')) {
+                    const match = body.resource.match(/\/(\d+)$/);
+                    dataId = match ? match[1] : body.resource;
+                } else {
+                    dataId = body.resource.toString();
+                }
+            } else {
+                console.error('No se encontró data.id ni resource en el body');
+                return false;
             }
-            
+
             const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
-            
-            const secret = process.env.MP_WEBHOOK_SECRET; 
-            
+
+            const secret = process.env.MP_WEBHOOK_SECRET;
+
             if (!secret) {
-            console.error('MP_WEBHOOK_SECRET no configurado');
-            return false;
+                console.error('MP_WEBHOOK_SECRET no configurado');
+                return false;
             }
-            
+
             const hmac = crypto.createHmac('sha256', secret);
             hmac.update(manifest);
             const calculatedHash = hmac.digest('hex');
-            
+
             const isValid = calculatedHash === hash;
-            
+
             if (!isValid) {
-            console.error('Firma inválida');
-            console.error('Manifest:', manifest);
-            console.error('Hash esperado:', hash);
-            console.error('Hash calculado:', calculatedHash);
+                console.error('Firma inválida');
+                console.error('Manifest:', manifest);
+                console.error('Hash esperado:', hash);
+                console.error('Hash calculado:', calculatedHash);
             }
-            
+
             return isValid;
         } catch (error) {
             console.error('Error validando firma:', error);
             return false;
         }
-        }
+    }
 }
