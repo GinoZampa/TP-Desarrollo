@@ -1,4 +1,4 @@
-import { Controller, Post, Req, Res } from '@nestjs/common';
+import { Controller, Post, Req, Res, Headers } from '@nestjs/common';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { ShipmentsService } from '../shipments/shipments.service';
@@ -6,6 +6,7 @@ import { PurchasesService } from '../purchases/purchases.service';
 import { ClothesService } from '../clothes/clothes.service';
 import { PurchaseClotheService } from 'src/purchase-clothe/purchase-clothe.service';
 import { STATUS } from '../shipments/entities/shipment.entity';
+import * as crypto from 'crypto';
 
 @Controller('webhook')
 export class WebhookController {
@@ -17,10 +18,18 @@ export class WebhookController {
     ) { }
 
     @Post('mercadopago')
-    async handleWebhook(@Req() req: Request, @Res() res: Response) {
-        const payment = req.body;
+    async handleWebhook(@Req() req: Request, @Res() res: Response, @Headers('x-signature') signature: string, @Headers('x-request-id') requestId: string) {
+        console.log('Webhook recibido:', req.body);
+        console.log('Signature:', signature);
+        console.log('Request ID:', requestId);
 
-        console.log('Webhook recibido:', payment);
+        const isValidSignature = this.validateSignature(signature, requestId, req.body);
+
+        if (!isValidSignature) {
+            return res.status(403).send('Firma inválida');
+        }
+
+        const payment = req.body;
 
         if (payment.type === 'payment') {
             const paymentId = payment.data.id;
@@ -35,10 +44,13 @@ export class WebhookController {
                     },
                 );
 
-                console.log(`Estado del pago ${paymentId}:`, data.status);
-                console.log('Metadata:', data.metadata);
-
                 if (data.status === 'approved') {
+
+                    const existingPurchase = await this.purchaseService.findOneByPayment(paymentId);
+                    if (existingPurchase) {
+                        return res.status(200).send('Compra ya procesada');
+                    }
+
                     const { total_amount, user, products } = data.metadata;
 
                     const shipmentData = {
@@ -71,14 +83,13 @@ export class WebhookController {
                         };
 
                         await this.purchaseClotheService.create(purchaseItem);
-                    }
 
-                    products.map(async (product: any) => {
                         await this.clothesService.decreaseStock(
                             product.id_cl,
                             product.quantity,
                         );
-                    });
+                    }
+
                 }
 
                 res.status(200).send('Webhook recibido correctamente');
@@ -88,4 +99,57 @@ export class WebhookController {
             }
         }
     }
+
+    private validateSignature(
+        signature: string, 
+        requestId: string, 
+        body: any
+    ): boolean {
+        try {
+            const parts = signature.split(',');
+            const tsMatch = parts.find(p => p.startsWith('ts='));
+            const v1Match = parts.find(p => p.startsWith('v1='));
+            
+            if (!tsMatch || !v1Match) {
+            console.error('Header x-signature inválido');
+            return false;
+            }
+            
+            const ts = tsMatch.replace('ts=', '');
+            const hash = v1Match.replace('v1=', '');
+            
+            const dataId = body.data?.id;
+            if (!dataId) {
+            console.error('No se encontró data.id en el body');
+            return false;
+            }
+            
+            const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
+            
+            const secret = process.env.MP_WEBHOOK_SECRET; 
+            
+            if (!secret) {
+            console.error('MP_WEBHOOK_SECRET no configurado');
+            return false;
+            }
+            
+            const hmac = crypto.createHmac('sha256', secret);
+            hmac.update(manifest);
+            const calculatedHash = hmac.digest('hex');
+            
+            const isValid = calculatedHash === hash;
+            
+            if (!isValid) {
+            console.error('Firma inválida');
+            console.error('Manifest:', manifest);
+            console.error('Hash esperado:', hash);
+            console.error('Hash calculado:', calculatedHash);
+            }
+            
+            return isValid;
+        } catch (error) {
+            console.error('Error validando firma:', error);
+            return false;
+        }
+        }
 }

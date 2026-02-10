@@ -2,13 +2,14 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { User } from 'src/users/entities/user.entity';
+import { PaymentItemDto } from './dto/payment-item.dto';
 
 @Injectable()
 export class PaymentService {
 
   constructor(private readonly configService: ConfigService) { }
 
-  async createPayment(items: any[], user: User) {
+  async createPayment(items: PaymentItemDto[], user: User) {
     try {
       const mercadopago = new MercadoPagoConfig({
         accessToken: this.configService.get('MP_ACCESS_TOKEN'),
@@ -16,7 +17,7 @@ export class PaymentService {
       const preference = await new Preference(mercadopago).create({
         body: {
           items: [...items.map(item => ({
-            id: item.idCl,
+            id: item.idCl.toString(),
             title: item.nameCl,
             quantity: item.quantity,
             currency_id: 'ARS',
@@ -53,10 +54,8 @@ export class PaymentService {
         }
       });
 
-      console.log('Preferencia creada:', preference);
       return { init_point: preference.init_point };
     } catch (error) {
-      console.error('Error al crear el pago:', error.message || error);
       throw new InternalServerErrorException(`Error al crear el pago: ${error.message}`);
     }
   }
