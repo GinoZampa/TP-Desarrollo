@@ -13,7 +13,7 @@ export class ShipmentsService {
     private shipmentRepository: Repository<Shipment>,
     @InjectRepository(Locality)
     private localitiesRepository: Repository<Locality>,
-  ) {}
+  ) { }
 
   async create(createShipmentDto: CreateShipmentDto): Promise<Shipment> {
     const locality = await this.localitiesRepository.findOne({ where: { idLo: createShipmentDto.idLocality } });
@@ -23,7 +23,9 @@ export class ShipmentsService {
 
     const shipment = this.shipmentRepository.create({
       dateSh: createShipmentDto.dateSh,
-      locality: locality,});
+      locality: locality,
+      status: createShipmentDto.status,
+    });
     return this.shipmentRepository.save(shipment);
   }
 
