@@ -5,6 +5,7 @@ import { ShipmentsService } from '../shipments/shipments.service';
 import { PurchasesService } from '../purchases/purchases.service';
 import { ClothesService } from '../clothes/clothes.service';
 import { PurchaseClotheService } from 'src/purchase-clothe/purchase-clothe.service';
+import { STATUS } from '../shipments/entities/shipment.entity';
 
 @Controller('webhook')
 export class WebhookController {
@@ -43,6 +44,7 @@ export class WebhookController {
                     const shipmentData = {
                         dateSh: new Date(),
                         idLocality: user.id_lo,
+                        status: STATUS.PENDING,
                     };
 
                     const shipment = await this.shipmentService.create(shipmentData);
