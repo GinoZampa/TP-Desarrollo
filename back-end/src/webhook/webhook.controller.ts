@@ -19,17 +19,17 @@ export class WebhookController {
 
     @Post('mercadopago')
     async handleWebhook(@Req() req: Request, @Res() res: Response, @Headers('x-signature') signature: string, @Headers('x-request-id') requestId: string) {
-        console.log('Webhook recibido:', req.body);
-        console.log('Signature:', signature);
-        console.log('Request ID:', requestId);
+        const payment = req.body;
 
-        const isValidSignature = this.validateSignature(signature, requestId, req.body);
+        if (payment.type === 'payment' && payment.data?.id) {
+            const isValidSignature = this.validateSignature(signature, requestId, req.body);
 
-        if (!isValidSignature) {
-            return res.status(403).send('Firma inválida');
+            if (!isValidSignature) {
+                console.error('Firma inválida para webhook payment');
+                return res.status(403).send('Firma inválida');
+            }
         }
 
-        const payment = req.body;
 
         if (payment.type === 'payment') {
             const paymentId = payment.data.id;
@@ -118,19 +118,9 @@ export class WebhookController {
             const ts = tsMatch.replace('ts=', '');
             const hash = v1Match.replace('v1=', '');
 
-            let dataId: string;
-
-            if (body.data?.id) {
-                dataId = body.data.id.toString();
-            } else if (body.resource) {
-                if (typeof body.resource === 'string' && body.resource.includes('/')) {
-                    const match = body.resource.match(/\/(\d+)$/);
-                    dataId = match ? match[1] : body.resource;
-                } else {
-                    dataId = body.resource.toString();
-                }
-            } else {
-                console.error('No se encontró data.id ni resource en el body');
+            const dataId = body.data?.id;
+            if (!dataId) {
+                console.error('No se encontró data.id en el body');
                 return false;
             }
 
