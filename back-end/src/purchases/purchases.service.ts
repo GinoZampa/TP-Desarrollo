@@ -20,7 +20,9 @@ export class PurchasesService {
   }
 
   async findAll(): Promise<Purchase[]> {
-    return await this.purchaseRepository.find();
+    return await this.purchaseRepository.find({
+      relations: ['purchaseClothe', 'purchaseClothe.clothe']
+    });
   }
 
   async findOne(idPu: number): Promise<Purchase> {
@@ -58,9 +60,9 @@ export class PurchasesService {
     let localDate2: Date = null;
     let parts1: string[] = null;
     let parts2: string[] = null;
-    parts1 = date1.split('-'); 
+    parts1 = date1.split('-');
     localDate1 = new Date(Number(parts1[0]), Number(parts1[1]) - 1, Number(parts1[2]), 0, 0, 0);
-    parts2 = date2.split('-'); 
+    parts2 = date2.split('-');
     localDate2 = new Date(Number(parts2[0]), Number(parts2[1]) - 1, Number(parts2[2]), 23, 59, 59);
     return this.purchaseRepository.find({
       where: {

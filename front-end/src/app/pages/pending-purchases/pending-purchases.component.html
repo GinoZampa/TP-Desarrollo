@@ -21,6 +21,17 @@
             {{ purchase.user.addressUs }}, {{ purchase.user.locality.nameLo }}
           </div>
 
+          <!-- Product list -->
+          <div class="products-section" *ngIf="purchase.purchaseClothe && purchase.purchaseClothe.length > 0">
+            <div class="products-header">Products:</div>
+            <div class="product-item" *ngFor="let item of purchase.purchaseClothe">
+              <span class="product-name">{{ item.clothe.nameCl }}</span>
+              <span class="product-details">
+                Size: {{ item.clothe.size }} | Qty: {{ item.quantity }} | {{ item.unitPrice | currency }}
+              </span>
+            </div>
+          </div>
+
           <div class="amount">
             Total: {{ purchase.amount | currency }}
           </div>
@@ -57,6 +68,17 @@
 
           <div class="address">
             {{ purchase.user.addressUs }}, {{ purchase.user.locality.nameLo }}
+          </div>
+
+          <!-- Product list -->
+          <div class="products-section" *ngIf="purchase.purchaseClothe && purchase.purchaseClothe.length > 0">
+            <div class="products-header">Products:</div>
+            <div class="product-item" *ngFor="let item of purchase.purchaseClothe">
+              <span class="product-name">{{ item.clothe.nameCl }}</span>
+              <span class="product-details">
+                Size: {{ item.clothe.size }} | Qty: {{ item.quantity }} | {{ item.unitPrice | currency }}
+              </span>
+            </div>
           </div>
 
           <div class="amount">
