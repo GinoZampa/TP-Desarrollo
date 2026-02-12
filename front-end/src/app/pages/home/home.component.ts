@@ -56,9 +56,9 @@ export class HomeComponent implements OnInit {
         this.filteredProducts = products;
       });
     } else {
-      this.clothesService.getProducts().subscribe(products => {
-        this.products = products;
-        this.filteredProducts = products;
+      this.clothesService.getProducts().subscribe((response: any) => {
+        this.products = response.data;
+        this.filteredProducts = response.data;
       });
     }
   }
