@@ -8,6 +8,7 @@ import {
   Delete,
   Put,
   Query,
+  Header,
 } from '@nestjs/common';
 import { ClothesService } from './clothes.service';
 import { CreateClotheDto } from './dto/create-clothe.dto';
@@ -35,6 +36,9 @@ export class ClothesController {
   @Get()
   @ApiOperation({ summary: 'Get all clothing items' })
   @ApiResponse({ status: 200, description: 'List of clothing items' })
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+  @Header('Pragma', 'no-cache')
+  @Header('Expires', '0')
   findAll(): Promise<Clothe[]> {
     return this.clothesService.findAll();
   }

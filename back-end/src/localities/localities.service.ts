@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateLocalityDto } from './dto/create-locality.dto';
@@ -10,7 +10,7 @@ export class LocalitiesService {
   constructor(
     @InjectRepository(Locality)
     private localityRepository: Repository<Locality>,
-  ) {}
+  ) { }
 
   create(createLocalityDto: CreateLocalityDto): Promise<Locality> {
     const locality = this.localityRepository.create(createLocalityDto);
@@ -25,10 +25,14 @@ export class LocalitiesService {
     return this.localityRepository.find({ where: { isActive: true } });
   }
 
-  findOne(idLo: number): Promise<Locality> {
-    return this.localityRepository.findOne({
+  async findOne(idLo: number): Promise<Locality> {
+    const locality = await this.localityRepository.findOne({
       where: { idLo: idLo, isActive: true },
     });
+    if (!locality) {
+      throw new NotFoundException(`Locality with ID ${idLo} not found`);
+    }
+    return locality;
   }
 
   async update(
