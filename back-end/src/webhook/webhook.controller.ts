@@ -1,13 +1,17 @@
-import { Controller, Post, Req, Res, Headers } from '@nestjs/common';
+import { Controller, Post, Req, Res, Headers, BadRequestException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { ShipmentsService } from '../shipments/shipments.service';
 import { PurchasesService } from '../purchases/purchases.service';
 import { ClothesService } from '../clothes/clothes.service';
 import { PurchaseClotheService } from 'src/purchase-clothe/purchase-clothe.service';
-import { STATUS } from '../shipments/entities/shipment.entity';
+import { STATUS, Shipment } from '../shipments/entities/shipment.entity';
 import * as crypto from 'crypto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import { DataSource } from 'typeorm';
+import { Purchase } from '../purchases/entities/purchase.entity';
+import { Clothe } from '../clothes/entities/clothe.entity';
+import { PurchaseClothe } from 'src/purchase-clothe/entities/purchase-clothe.entity';
 
 @ApiTags('Webhook')
 @Controller('webhook')
@@ -17,6 +21,7 @@ export class WebhookController {
         private readonly purchaseService: PurchasesService,
         private readonly clothesService: ClothesService,
         private readonly purchaseClotheService: PurchaseClotheService,
+        private readonly dataSource: DataSource,
     ) { }
 
     @Post('mercadopago')
@@ -53,44 +58,52 @@ export class WebhookController {
                         return res.status(200).send('Compra ya procesada');
                     }
 
-                    const { total_amount, user, products } = data.metadata;
+                    await this.dataSource.transaction(async (manager) => {
+                        const { total_amount, user, products } = data.metadata;
 
-                    const shipmentData = {
-                        dateSh: new Date(),
-                        idLocality: user.id_lo,
-                        status: STATUS.PENDING,
-                    };
+                        // 1. Create Shipment
+                        const shipment = manager.create(Shipment, {
+                            dateSh: new Date(),
+                            idLocality: user.id_lo,
+                            status: STATUS.PENDING,
+                        });
+                        const savedShipment = await manager.save(shipment);
 
-                    const shipment = await this.shipmentService.create(shipmentData);
+                        // 2. Create Purchase
+                        const purchase = manager.create(Purchase, {
+                            amount: total_amount,
+                            shipment: savedShipment.idSh, // Relacionamos con el ID del envío guardado
+                            user: user.id,
+                            paymentId: paymentId,
+                        } as any);
+                        const savedPurchase = await manager.save(Purchase, purchase);
 
-                    const purchaseData = {
-                        amount: total_amount,
-                        shipment: shipment.idSh,
-                        user: user.id,
-                        paymentId: paymentId,
-                    };
+                        // 3. Process Products
+                        for (const product of products) {
+                            // Find clothe inside transaction to ensure we see current state (optional: add locking)
+                            const clotheEntity = await manager.findOne(Clothe, { where: { idCl: product.id_cl } });
 
-                    const purchase = await this.purchaseService.create(purchaseData);
+                            if (!clotheEntity) {
+                                throw new BadRequestException(`Producto ${product.id_cl} no encontrado`);
+                            }
 
-                    for (const product of products) {
-                        const clotheEntity = await this.clothesService.findOne(
-                            product.id_cl,
-                        );
+                            if (clotheEntity.stock < product.quantity) {
+                                throw new BadRequestException(`Stock insuficiente para ${clotheEntity.nameCl}`);
+                            }
 
-                        const purchaseItem = {
-                            purchase: purchase,
-                            clothe: clotheEntity,
-                            quantity: product.quantity,
-                            unitPrice: product.price,
-                        };
+                            // Create PurchaseClothe relation
+                            const purchaseItem = manager.create(PurchaseClothe, {
+                                purchase: savedPurchase,
+                                clothe: clotheEntity,
+                                quantity: product.quantity,
+                                unitPrice: product.price,
+                            });
+                            await manager.save(PurchaseClothe, purchaseItem);
 
-                        await this.purchaseClotheService.create(purchaseItem);
-
-                        await this.clothesService.decreaseStock(
-                            product.id_cl,
-                            product.quantity,
-                        );
-                    }
+                            // Update Stock
+                            await manager.decrement(Clothe, { idCl: clotheEntity.idCl }, 'stock', product.quantity);
+                        }
+                    });
 
                 }
 

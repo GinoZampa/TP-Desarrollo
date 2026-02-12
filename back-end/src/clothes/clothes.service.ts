@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 import { CreateClotheDto } from './dto/create-clothe.dto';
 import { UpdateClotheDto } from './dto/update-clothe.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Clothe } from './entities/clothe.entity';
 
 @Injectable()
@@ -17,10 +18,14 @@ export class ClothesService {
     return this.clotheRepository.save(clothe);
   }
 
-  findAll(): Promise<Clothe[]> {
-    return this.clotheRepository.find({
-      where: { isActive: true }
+  async findAll(paginationDto: PaginationDto = {}): Promise<{ data: Clothe[]; total: number }> {
+    const { limit = 10, offset = 0 } = paginationDto;
+    const [data, total] = await this.clotheRepository.findAndCount({
+      where: { isActive: true },
+      take: limit,
+      skip: offset,
     });
+    return { data, total };
   }
 
   async findOne(idCl: number): Promise<Clothe> {

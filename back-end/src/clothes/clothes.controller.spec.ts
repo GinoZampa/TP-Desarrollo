@@ -68,14 +68,15 @@ describe('ClothesController', () => {
     });
 
     describe('findAll', () => {
-        it('should return an array of clothes', async () => {
-            const expectedResult = [{ idCl: 1, nameCl: 'Test Clothe' }];
+        it('should return an array of clothes with total count', async () => {
+            const expectedResult = { data: [{ idCl: 1, nameCl: 'Test Clothe' }], total: 1 };
+            // @ts-ignore
             mockClothesService.findAll.mockResolvedValue(expectedResult);
 
-            const result = await controller.findAll();
+            const result = await controller.findAll({});
 
             expect(result).toEqual(expectedResult);
-            expect(service.findAll).toHaveBeenCalled();
+            expect(service.findAll).toHaveBeenCalledWith({});
         });
     });
 

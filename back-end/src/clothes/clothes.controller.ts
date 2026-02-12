@@ -14,6 +14,7 @@ import { ClothesService } from './clothes.service';
 import { CreateClotheDto } from './dto/create-clothe.dto';
 import { UpdateClotheDto } from './dto/update-clothe.dto';
 import { Clothe } from './entities/clothe.entity';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Auth } from 'src/auth/decorators/auth.decorators';
 import { Rol } from 'src/common/enums/rol.enum';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
@@ -39,8 +40,8 @@ export class ClothesController {
   @Header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
   @Header('Pragma', 'no-cache')
   @Header('Expires', '0')
-  findAll(): Promise<Clothe[]> {
-    return this.clothesService.findAll();
+  findAll(@Query() paginationDto: PaginationDto): Promise<{ data: Clothe[]; total: number }> {
+    return this.clothesService.findAll(paginationDto);
   }
 
   @Get('search')
