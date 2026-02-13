@@ -1,27 +1,36 @@
+@if(cloth){
 <div class="product-detail-container">
   <div class="product-card">
     <div class="image-section">
-      <img [src]="cloth?.image" alt="{{cloth?.nameCl}}" />
+      <img [src]="cloth.image" alt="{{cloth.nameCl}}" />
     </div>
     <div class="info-section">
-      <h2 class="product-title">{{cloth?.nameCl}}</h2>
-      <p class="product-description">{{cloth?.description}}</p>
+      <h2 class="product-title">{{cloth.nameCl}}</h2>
+      <p class="product-description">{{cloth.description}}</p>
       <div class="product-meta">
-        <span class="meta-item"> Size: <b>{{cloth?.size}}</b></span>
-        <span class="meta-item"> Stock: <b>{{cloth?.stock}}</b></span>
-        <span class="meta-item price"> ${{cloth?.price}}</span>
+        <span class="meta-item"> Size: <b>{{cloth.size}}</b></span>
+        <span class="meta-item"> Stock: <b>{{cloth.stock}}</b></span>
+        <span class="meta-item price"> ${{cloth.price}}</span>
       </div>
-      <div class="quantity-section">
-        <label>Quantity:</label>
-        <div class="quantity-controls">
-          <button type="button" class="quantity-btn" (click)="decreaseQuantity()">-</button>
-          <span class="quantity-display">{{quantity}}</span>
-          <button type="button" class="quantity-btn" (click)="increaseQuantity()">+</button>
+
+      <div *ngIf="cloth.stock === 0" class="out-of-stock-message">
+        <p>Out of Stock</p>
+      </div>
+
+      <ng-container *ngIf="cloth.stock > 0">
+        <div class="quantity-section">
+          <label>Quantity:</label>
+          <div class="quantity-controls">
+            <button type="button" class="quantity-btn" (click)="decreaseQuantity()">-</button>
+            <span class="quantity-display">{{quantity}}</span>
+            <button type="button" class="quantity-btn" (click)="increaseQuantity()">+</button>
+          </div>
         </div>
-      </div>
-      <button type="button" *ngIf="userRole!='admin'" class="add-to-bag-btn" (click)="addToBag(cloth)">
-        Add to bag
-      </button>
+        <button type="button" *ngIf="userRole!='admin'" class="add-to-bag-btn" (click)="addToBag(cloth)">
+          Add to bag
+        </button>
+      </ng-container>
     </div>
   </div>
 </div>
+}

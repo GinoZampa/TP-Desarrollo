@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { BagService } from '../../services/bag.service';
-import { AuthService } from '../../services/auth.service';
 import { TokenService } from '../../services/token.service';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.scss',
 })
-export class NavComponent implements OnInit, OnDestroy {
+export class NavComponent implements OnInit {
   isAuthenticated = false;
   currentUser: any = null;
   userRole: string | null = null;
@@ -24,35 +24,31 @@ export class NavComponent implements OnInit, OnDestroy {
   searchResults: any[] = [];
   searchTimeout: any;
 
-  private subscriptions: Subscription[] = [];
-
   private _bagService = inject(BagService);
   private _router = inject(Router);
   private _tokenService = inject(TokenService);
-  private _authService = inject(AuthService);
   private clothesService = inject(ClothesService);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    const authSub = this._tokenService.isAuthenticated$.subscribe(
-      (isAuth) => {
-        this.isAuthenticated = isAuth;
-      }
-    );
+    this._tokenService.isAuthenticated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(
+        (isAuth) => {
+          this.isAuthenticated = isAuth;
+        }
+      );
 
-    const userSub = this._tokenService.currentUser$.subscribe(
-      (user) => {
-        this.currentUser = user?.user;
-        this.userRole = user?.user.rol || null;
-      }
-    );
-
-    this.subscriptions.push(authSub, userSub);
+    this._tokenService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(
+        (user) => {
+          this.currentUser = user?.user;
+          this.userRole = user?.user.rol || null;
+        }
+      );
 
     this._tokenService.checkAuthStatus();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   navigate(route: string): void {
@@ -60,7 +56,7 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this._authService.logout();
+    this._tokenService.logout();
     this._bagService.clearBag();
 
     Swal.fire({
@@ -88,9 +84,11 @@ export class NavComponent implements OnInit, OnDestroy {
     if (term.length > 2) {
       clearTimeout(this.searchTimeout);
       this.searchTimeout = setTimeout(() => {
-        this.clothesService.searchProducts(term).subscribe({
-          next: (results) => this.searchResults = results
-        });
+        this.clothesService.searchProducts(term)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (results) => this.searchResults = results
+          });
       }, 100);
     }
   }

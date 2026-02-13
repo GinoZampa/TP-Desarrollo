@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Cloth } from '../../models/clothes.model';
 import { ClothesService } from '../../services/clothes.service';
@@ -27,18 +27,20 @@ export class HomeComponent implements OnInit {
   private router = inject(Router);
   private tokenService = inject(TokenService);
   private cdRef = inject(ChangeDetectorRef);
-  private route = inject(ActivatedRoute)
+  private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
-  private subs: Subscription[] = [];
+  private subs: Subscription[] = []; // Leaving this for now if used elsewhere, but not pushing to it for this sub
 
   ngOnInit(): void {
     // 1) me suscribo al currentUser$ para detectar cambios
-    const userSub = this.tokenService.currentUser$.subscribe(user => {
-      this.userRole = user?.user.rol || null;
-      this.cdRef.markForCheck();
-      this.loadProducts();
-    });
-    this.subs.push(userSub);
+    this.tokenService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        this.userRole = user?.user.rol || null;
+        this.cdRef.markForCheck();
+        this.loadProducts();
+      });
 
     // 2) cargará de localStorage si ya había token
     this.tokenService.checkAuthStatus();

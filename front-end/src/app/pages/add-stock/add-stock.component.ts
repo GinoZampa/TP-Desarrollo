@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Cloth } from '../../models/clothes.model';
 import { CommonModule } from '@angular/common';
 import {
@@ -22,6 +23,7 @@ export class AddStockComponent implements OnInit {
   @Input() cloth!: Cloth;
   editStockForm!: FormGroup;
   loading = true;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private fb: FormBuilder,
@@ -31,14 +33,16 @@ export class AddStockComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
-      this.clothesService
-        .getProductById(params['id'])
-        .subscribe((data: Cloth) => {
-          this.cloth = data;
-          this.loading = false;
-        });
-    });
+    this.route.params
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        this.clothesService
+          .getProductById(params['id'])
+          .subscribe((data: Cloth) => {
+            this.cloth = data;
+            this.loading = false;
+          });
+      });
     this.editStockForm = this.fb.group({
       stock: ['', [Validators.required, Validators.min(1)]],
     });

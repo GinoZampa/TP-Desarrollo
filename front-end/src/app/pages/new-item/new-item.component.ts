@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { ClothesService } from '../../services/clothes.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -22,7 +22,7 @@ export class NewItemComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    private authService: AuthService,
+    private clothesService: ClothesService,
     private router: Router
   ) {
     this.loginForm = this.formBuilder.group({
@@ -46,8 +46,8 @@ export class NewItemComponent {
         text: 'Please fill out all fields correctly.',
       });
       return;
-        }
-    this.authService
+    }
+    this.clothesService
       .newItem(nameCl, description, size, typeCl, stock, price, image)
       .subscribe(
         () => {

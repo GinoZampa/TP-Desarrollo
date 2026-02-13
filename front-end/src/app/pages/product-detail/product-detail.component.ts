@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ClothesService } from '../../services/clothes.service';
@@ -27,26 +28,28 @@ export class ProductDetailComponent implements OnInit {
   private clothesService = inject(ClothesService);
   private bagService = inject(BagService);
   private cdRef = inject(ChangeDetectorRef);
-
-  private subs: Subscription[] = [];
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    const userSub = this.tokenService.currentUser$.subscribe(user => {
-      this.userRole = user?.user.rol || null;
-      this.cdRef.markForCheck();
-    });
-    this.subs.push(userSub);
+    this.tokenService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        this.userRole = user?.user.rol || null;
+        this.cdRef.markForCheck();
+      });
 
     this.tokenService.checkAuthStatus();
 
-    this.route.params.subscribe((params) => {
-      this.clothesService
-        .getProductById(params['id'])
-        .subscribe((data: Cloth) => {
-          this.cloth = data;
-          this.loading = false;
-        });
-    });
+    this.route.params
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        this.clothesService
+          .getProductById(params['id'])
+          .subscribe((data: Cloth) => {
+            this.cloth = data;
+            this.loading = false;
+          });
+      });
   }
 
   addToBag(product: any) {

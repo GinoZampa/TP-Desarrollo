@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LocalityService } from '../../services/locality.service';
 import {
   FormBuilder,
   FormGroup,
@@ -22,9 +24,12 @@ export class SignUpComponent implements OnInit {
   loginForm!: FormGroup;
   localities: Locality[] = [];
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private localityService: LocalityService,
     @Inject(Router) private router: Router
   ) {
     this.loginForm = this.formBuilder.group({
@@ -44,14 +49,16 @@ export class SignUpComponent implements OnInit {
   }
 
   loadLocalities() {
-    this.authService.getActiveLocalities().subscribe({
-      next: (data: Locality[]) => {
-        this.localities = data;
-      },
-      error: (error: any) => {
-        console.error('Error loading localities', error);
-      }
-    });
+    this.localityService.getActiveLocalities()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data: Locality[]) => {
+          this.localities = data;
+        },
+        error: (error: any) => {
+          console.error('Error loading localities', error);
+        }
+      });
   }
 
   onSubmit() {
@@ -84,6 +91,7 @@ export class SignUpComponent implements OnInit {
         addressUs,
         idLo
       )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: any) => {
         Swal.fire({
           icon: 'success',

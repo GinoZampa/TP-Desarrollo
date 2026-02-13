@@ -1,11 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../services/auth.service';
+import { LocalityService } from '../../services/locality.service';
+import { UserService } from '../../services/user.service';
 import { TokenService } from '../../services/token.service';
-import { User } from '../../models/clothes.model';
+import { User } from '../../models/users.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -15,7 +17,7 @@ import Swal from 'sweetalert2';
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
-export class SettingsComponent implements OnInit, OnDestroy {
+export class SettingsComponent implements OnInit {
   user: User | null = null;
   localities: any[] = [];
 
@@ -27,11 +29,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showUpdateProfile = false;
   showDeleteAccount = false;
 
-  private subscriptions: Subscription[] = [];
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
+    private localityService: LocalityService,
+    private userService: UserService,
     private tokenService: TokenService,
     private router: Router
   ) {
@@ -60,18 +63,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.loadLocalities();
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
   private loadUserData(): void {
-    const userSub = this.tokenService.currentUser$.subscribe(userData => {
-      if (userData?.user) {
-        this.user = userData.user;
-        this.populateProfileForm();
-      }
-    });
-    this.subscriptions.push(userSub);
+    this.tokenService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(userData => {
+        if (userData?.user) {
+          this.user = userData.user;
+          this.populateProfileForm();
+        }
+      });
+
     this.tokenService.checkAuthStatus();
   }
 
@@ -88,15 +89,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   private loadLocalities(): void {
-    const localitiesSub = this.authService.getActiveLocalities().subscribe({
-      next: (localities) => {
-        this.localities = localities;
-      },
-      error: (error) => {
-        console.error('Error loading localities:', error);
-      }
-    });
-    this.subscriptions.push(localitiesSub);
+    this.localityService.getActiveLocalities()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (localities) => {
+          this.localities = localities;
+        },
+        error: (error) => {
+          console.error('Error loading localities:', error);
+        }
+      });
   }
 
   private passwordMatchValidator(control: AbstractControl): { [key: string]: any } | null {
@@ -126,25 +128,26 @@ export class SettingsComponent implements OnInit, OnDestroy {
         newPassword: this.passwordForm.value.newPassword
       };
 
-      const changePasswordSub = this.authService.changePassword(passwordData).subscribe({
-        next: (response) => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Password changed successfully!',
-            confirmButtonText: 'OK'
-          });
-          this.passwordForm.reset();
-          this.showChangePassword = false;
-        },
-        error: (error) => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error changing password',
-            confirmButtonText: 'OK'
-          });
-        }
-      });
-      this.subscriptions.push(changePasswordSub);
+      this.userService.changePassword(passwordData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Password changed successfully!',
+              confirmButtonText: 'OK'
+            });
+            this.passwordForm.reset();
+            this.showChangePassword = false;
+          },
+          error: (error) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error changing password',
+              confirmButtonText: 'OK'
+            });
+          }
+        });
     }
   }
 
@@ -157,30 +160,31 @@ export class SettingsComponent implements OnInit, OnDestroy {
         idLo: Number(formValue.idLo)  // Convertir a número
       };
 
-      const updateProfileSub = this.authService.updateProfile(profileData).subscribe({
-        next: (response: any) => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Profile updated successfully!',
-            confirmButtonText: 'OK'
-          });
-          this.showUpdateProfile = false;
-          if (response.token) {
-            this.tokenService.updateToken(response.token);
-            this.user = response.user;
-            this.populateProfileForm();
+      this.userService.updateProfile(profileData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response: any) => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Profile updated successfully!',
+              confirmButtonText: 'OK'
+            });
+            this.showUpdateProfile = false;
+            if (response.token) {
+              this.tokenService.updateToken(response.token);
+              this.user = response.user;
+              this.populateProfileForm();
+            }
+          },
+          error: (error) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error updating profile',
+              text: error.error?.message || 'Unknown error',
+              confirmButtonText: 'OK'
+            });
           }
-        },
-        error: (error) => {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error updating profile',
-            text: error.error?.message || 'Unknown error',
-            confirmButtonText: 'OK'
-          });
-        }
-      });
-      this.subscriptions.push(updateProfileSub);
+        });
     }
   }
 
@@ -198,26 +202,27 @@ export class SettingsComponent implements OnInit, OnDestroy {
           const idUs = this.user!.idUs;
           const password = this.deleteForm.value.password;
 
-          const deleteAccountSub = this.authService.deleteAccount(idUs, password).subscribe({
-            next: (response) => {
-              Swal.fire({
-                icon: 'success',
-                title: 'Account deleted successfully!',
-                confirmButtonText: 'OK'
-              });
-              this.tokenService.logout();
-              this.router.navigate(['/login']);
-            },
-            error: (error) => {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error deleting account',
-                text: error.error?.message || 'Unknown error',
-                confirmButtonText: 'OK'
-              });
-            }
-          });
-          this.subscriptions.push(deleteAccountSub);
+          this.userService.deleteAccount(idUs, password)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (response) => {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Account deleted successfully!',
+                  confirmButtonText: 'OK'
+                });
+                this.tokenService.logout();
+                this.router.navigate(['/login']);
+              },
+              error: (error) => {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error deleting account',
+                  text: error.error?.message || 'Unknown error',
+                  confirmButtonText: 'OK'
+                });
+              }
+            });
         }
       });
     }

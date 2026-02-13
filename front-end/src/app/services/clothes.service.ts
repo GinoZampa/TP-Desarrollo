@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_CONFIG } from '../../environments';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClothesService {
-  private urlBase = `${API_CONFIG.API_URL}/clothes`;
+  private urlBase = `${environment.apiUrl}/clothes`;
 
   constructor(private http: HttpClient) { }
 
@@ -57,5 +57,20 @@ export class ClothesService {
 
   deleteProduct(idCl: number): Observable<any> {
     return this.http.patch<any>(`${this.urlBase}/${idCl}/deactivate`, {});
+  }
+
+  newItem(
+    nameCl: string,
+    description: string,
+    size: string,
+    typeCl: string,
+    stock: number,
+    price: number,
+    image: string
+  ): Observable<any> {
+    return this.http.post(
+      this.urlBase,
+      { nameCl, description, size, typeCl, stock, price, image }
+    );
   }
 }

@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BagService } from '../../services/bag.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
-import { switchMap } from 'rxjs';
+import { PurchaseService } from '../../services/purchase.service';
+import { switchMap, finalize } from 'rxjs';
 
 @Component({
   selector: 'app-success',
@@ -20,11 +21,13 @@ export class SuccessComponent implements OnInit {
   purchaseClothes: any[] = [];
   error: string | null = null;
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(
     private bagService: BagService,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService,
+    private purchaseService: PurchaseService,
     private zone: NgZone,
     private cd: ChangeDetectorRef
   ) { }
@@ -33,21 +36,25 @@ export class SuccessComponent implements OnInit {
     this.loadData();
   }
 
-  private async loadData() {
-    try {
-      this.route.queryParams
-        .pipe(
-          switchMap((params) => {
-            this.paymentId = params['payment_id'];
-            return this.authService.getPurchaseByPaymentId(this.paymentId);
-          }),
-
-          switchMap((purchase) => {
-            this.purchase = purchase;
-            return this.authService.getClotheByPurchaseId(this.purchase.idPu);
-          })
-        )
-        .subscribe((purchaseClothes) => {
+  private loadData() {
+    this.route.queryParams
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap((params) => {
+          this.paymentId = params['payment_id'];
+          return this.purchaseService.getPurchaseByPaymentId(this.paymentId);
+        }),
+        switchMap((purchase) => {
+          this.purchase = purchase;
+          return this.purchaseService.getClotheByPurchaseId(this.purchase.idPu);
+        }),
+        finalize(() => {
+          this.loading = false;
+          this.cd.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (purchaseClothes) => {
           this.zone.run(() => {
             this.purchaseClothes = Array.isArray(purchaseClothes)
               ? purchaseClothes
@@ -62,15 +69,11 @@ export class SuccessComponent implements OnInit {
               showConfirmButton: false,
             });
           });
-        });
-    } catch (error) {
-      error = error;
-    } finally {
-      this.loading = false;
-      setTimeout(() => {
-        this.cd.detectChanges();
-      }, 500);
-    }
+        },
+        error: (err) => {
+          console.error('Error loading success data', err);
+        }
+      });
   }
 
   navigate() {

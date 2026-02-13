@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
     selector: 'app-admin-users',
@@ -10,34 +11,32 @@ import { AuthService } from '../../services/auth.service';
     templateUrl: './admin-users.component.html',
     styleUrl: './admin-users.component.scss'
 })
-export class AdminUsersComponent implements OnInit, OnDestroy {
+export class AdminUsersComponent implements OnInit {
     users: any[] = [];
     loading = true;
-    private subscriptions: Subscription[] = [];
 
-    constructor(private authService: AuthService) { }
+    private destroyRef = inject(DestroyRef);
+
+    constructor(private userService: UserService) { }
 
     ngOnInit(): void {
         this.loadUsers();
     }
 
-    ngOnDestroy(): void {
-        this.subscriptions.forEach(sub => sub.unsubscribe());
-    }
-
     loadUsers(): void {
         this.loading = true;
-        const sub = this.authService.getUsersWithStats().subscribe({
-            next: (users) => {
-                this.users = users;
-                this.loading = false;
-            },
-            error: (error) => {
-                console.error('Error loading users:', error);
-                this.loading = false;
-            }
-        });
-        this.subscriptions.push(sub);
+        this.userService.getUsersWithStats()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (users) => {
+                    this.users = users;
+                    this.loading = false;
+                },
+                error: (error) => {
+                    console.error('Error loading users:', error);
+                    this.loading = false;
+                }
+            });
     }
 
     formatDate(date: string | null): string {

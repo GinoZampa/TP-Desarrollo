@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import { ChangeDetectorRef, Component, inject, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PurchaseService } from '../../services/purchase.service';
 import { TokenService } from '../../services/token.service';
-import { User } from '../../models/clothes.model';
+import { User } from '../../models/users.model';
 import { firstValueFrom, Subscription } from 'rxjs';
 
 @Component({
@@ -13,8 +14,10 @@ import { firstValueFrom, Subscription } from 'rxjs';
   styleUrl: './user-purchases.component.scss',
 })
 export class UserPurchasesComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   constructor(
-    private authService: AuthService,
+    private purchaseService: PurchaseService,
     private tokenService: TokenService,
     private cdRef: ChangeDetectorRef
   ) { }
@@ -24,14 +27,14 @@ export class UserPurchasesComponent implements OnInit {
   user!: User;
   products: any[] = [];
   isDropdownOpen = false;
-  private subs: Subscription[] = [];
 
   ngOnInit(): void {
-    const userSub = this.tokenService.currentUser$.subscribe(user => {
-      this.user = user?.user || null;
-      this.cdRef.markForCheck();
-    });
-    this.subs.push(userSub);
+    this.tokenService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        this.user = user?.user || null;
+        this.cdRef.markForCheck();
+      });
 
     this.tokenService.checkAuthStatus();
     this.loadUserPurchases();
@@ -45,14 +48,14 @@ export class UserPurchasesComponent implements OnInit {
       }
 
       const purchaseData = await firstValueFrom(
-        this.authService.getUserPurchases(this.user.idUs)
+        this.purchaseService.getUserPurchases(this.user.idUs)
       );
 
       this.products = [];
 
       for (const purchase of purchaseData) {
         const purchaseProducts = await firstValueFrom(
-          this.authService.getClotheByPurchaseId(purchase.idPu)
+          this.purchaseService.getClotheByPurchaseId(purchase.idPu)
         );
 
         const purchaseWithProducts = {

@@ -1,36 +1,82 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home.component';
-import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
-import { LoginComponent } from './pages/login/login.component';
-import { SignUpComponent } from './pages/sign-up/sign-up.component';
-import { BagComponent } from './pages/bag/bag.component';
-import { NewItemComponent } from './pages/new-item/new-item.component';
-import { EditPriceComponent } from './pages/edit-price/edit-price.component';
-import { AddStockComponent } from './pages/add-stock/add-stock.component';
-import { PurchasesComponent } from './pages/purchases/purchases.component';
-import { UserPurchasesComponent } from './pages/user-purchases/user-purchases.component';
-import { SuccessComponent } from './pages/success/success.component';
-import { LocalitiesComponent } from './pages/localities/localities.component';
-import { SettingsComponent } from './pages/settings/settings.component';
-import { PendingPurchasesComponent } from './pages/pending-purchases/pending-purchases.component';
-import { AdminUsersComponent } from './pages/admin-users/admin-users.component';
+import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
-    { path: '', component: HomeComponent },
-    { path: 'search/:desc', component: HomeComponent },
-    { path: 'products/:id', component: ProductDetailComponent },
-    { path: 'login', component: LoginComponent },
-    { path: 'sign-up', component: SignUpComponent },
-    { path: 'bag', component: BagComponent },
-    { path: 'new-item', component: NewItemComponent },
-    { path: 'edit-price/:id', component: EditPriceComponent },
-    { path: 'add-stock/:id', component: AddStockComponent },
-    { path: 'purchases', component: PurchasesComponent },
-    { path: 'user-purchases', component: UserPurchasesComponent },
-    { path: 'success', component: SuccessComponent },
-    { path: 'localities', component: LocalitiesComponent },
-    { path: 'settings', component: SettingsComponent },
-    { path: 'pending-purchases', component: PendingPurchasesComponent },
-    { path: 'admin-users', component: AdminUsersComponent },
+    { path: '', loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) },
+
+    { 
+        path: 'search/:desc',
+        loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) 
+    },
+    { 
+        path: 'products/:id',
+        loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent) 
+    },
+    { 
+        path: 'login',
+        loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent) 
+    },
+    { 
+        path: 'sign-up',
+        loadComponent: () => import('./pages/sign-up/sign-up.component').then(m => m.SignUpComponent) 
+    },
+
+    { 
+        path: 'bag',
+        loadComponent: () => import('./pages/bag/bag.component').then(m => m.BagComponent) 
+    },
+
+    {
+        path: 'purchases',
+        loadComponent: () => import('./pages/purchases/purchases.component').then(m => m.PurchasesComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'user-purchases',
+        loadComponent: () => import('./pages/user-purchases/user-purchases.component').then(m => m.UserPurchasesComponent),
+        canActivate: [authGuard]
+    },
+    {
+        path: 'settings',
+        loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
+        canActivate: [authGuard]
+    },
+    { 
+        path: 'success', 
+        loadComponent: () => import('./pages/success/success.component').then(m => m.SuccessComponent), 
+        canActivate: [authGuard] 
+    },
+    {
+        path: 'new-item',
+        loadComponent: () => import('./pages/new-item/new-item.component').then(m => m.NewItemComponent),
+        canActivate: [adminGuard]
+    },
+    {
+        path: 'edit-price/:id',
+        loadComponent: () => import('./pages/edit-price/edit-price.component').then(m => m.EditPriceComponent),
+        canActivate: [adminGuard]
+    },
+    {
+        path: 'add-stock/:id',
+        loadComponent: () => import('./pages/add-stock/add-stock.component').then(m => m.AddStockComponent),
+        canActivate: [adminGuard]
+    },
+    {
+        path: 'localities',
+        loadComponent: () => import('./pages/localities/localities.component').then(m => m.LocalitiesComponent),
+        canActivate: [adminGuard]
+    },
+    {
+        path: 'pending-purchases',
+        loadComponent: () => import('./pages/pending-purchases/pending-purchases.component').then(m => m.PendingPurchasesComponent),
+        canActivate: [adminGuard]
+    },
+    {
+        path: 'admin-users',
+        loadComponent: () => import('./pages/admin-users/admin-users.component').then(m => m.AdminUsersComponent),
+        canActivate: [adminGuard]
+    },
+
     { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

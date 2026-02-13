@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthService } from '../../services/auth.service';
+import { LocalityService } from '../../services/locality.service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
-import { Subscription } from 'rxjs';
 import { Locality } from '../../models/localities.model';
 
 @Component({
@@ -14,15 +14,16 @@ import { Locality } from '../../models/localities.model';
   templateUrl: './localities.component.html',
   styleUrl: './localities.component.scss'
 })
-export class LocalitiesComponent implements OnInit, OnDestroy {
+export class LocalitiesComponent implements OnInit {
   localities: any[] = [];
   editingLocality: any | null = null;
   editForm: FormGroup;
   isAddingNew: boolean = false;
-  private subscriptions: Subscription[] = [];
+
+  private destroyRef = inject(DestroyRef);
 
   constructor(
-    private authService: AuthService,
+    private localityService: LocalityService,
     private fb: FormBuilder
   ) {
     this.editForm = this.fb.group({
@@ -36,25 +37,22 @@ export class LocalitiesComponent implements OnInit, OnDestroy {
     this.loadLocalities();
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
   loadLocalities(): void {
-    const localitiesSub = this.authService.getLocalities().subscribe({
-      next: (localities) => {
-        this.localities = localities;
-      },
-      error: (error) => {
-        console.error('Error loading localities:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error loading localities'
-        });
-      }
-    });
-    this.subscriptions.push(localitiesSub);
+    this.localityService.getLocalities()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (localities) => {
+          this.localities = localities;
+        },
+        error: (error) => {
+          console.error('Error loading localities:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error loading localities'
+          });
+        }
+      });
   }
 
   editLocality(locality: Locality): void {
@@ -78,28 +76,29 @@ export class LocalitiesComponent implements OnInit, OnDestroy {
         cost: Number(this.editForm.value.cost),
       };
 
-      const updateSub = this.authService.updateLocality(this.editingLocality.idLo, updateData).subscribe({
-        next: (response) => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Updated!',
-            text: 'Locality updated successfully',
-            timer: 2000,
-            showConfirmButton: false
-          });
-          this.cancelEdit();
-          this.loadLocalities();
-        },
-        error: (error) => {
-          console.error('Error updating locality:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error updating locality'
-          });
-        }
-      });
-      this.subscriptions.push(updateSub);
+      this.localityService.updateLocality(this.editingLocality.idLo, updateData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Updated!',
+              text: 'Locality updated successfully',
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.cancelEdit();
+            this.loadLocalities();
+          },
+          error: (error) => {
+            console.error('Error updating locality:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Error updating locality'
+            });
+          }
+        });
     }
   }
 
@@ -114,51 +113,55 @@ export class LocalitiesComponent implements OnInit, OnDestroy {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.authService.deleteLocality(locality.idLo).subscribe({
-          next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Deleted!',
-              text: 'Locality has been deleted.',
-              timer: 2000,
-              showConfirmButton: false
-            });
-            this.loadLocalities();
-          },
-          error: (error) => {
-            console.error('Error deleting locality:', error);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'This locality has associated users'
-            });
-          }
-        });
+        this.localityService.deleteLocality(locality.idLo)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'Locality has been deleted.',
+                timer: 2000,
+                showConfirmButton: false
+              });
+              this.loadLocalities();
+            },
+            error: (error) => {
+              console.error('Error deleting locality:', error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'This locality has associated users'
+              });
+            }
+          });
       }
     });
   }
 
   activateLocality(locality: Locality): void {
-    const activateSub = this.authService.activateLocality(locality.idLo).subscribe({
-      next: () => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Activated!',
-          text: 'Locality has been activated.',
-          timer: 2000,
-          showConfirmButton: false
-        });
-        this.loadLocalities();
-      },
-      error: (error: any) => {
-        console.error('Error activating locality:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error activating locality'
-        });
-      }
-    });
+    this.localityService.activateLocality(locality.idLo)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Activated!',
+            text: 'Locality has been activated.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.loadLocalities();
+        },
+        error: (error: any) => {
+          console.error('Error activating locality:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error activating locality'
+          });
+        }
+      });
   }
 
   addNewLocality(): void {
@@ -174,32 +177,34 @@ export class LocalitiesComponent implements OnInit, OnDestroy {
 
   createLocality(): void {
     if (this.editForm.valid) {
-      this.authService.newLocality(
+      this.localityService.newLocality(
         this.editForm.value.nameLo,
         this.editForm.value.postalCode,
         this.editForm.value.cost
-      ).subscribe({
-        next: (response) => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Created!',
-            text: 'Locality created successfully',
-            timer: 2000,
-            showConfirmButton: false
-          });
-          this.isAddingNew = false;
-          this.editForm.reset();
-          this.loadLocalities();
-        },
-        error: (error) => {
-          console.error('Error creating locality:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Error creating locality'
-          });
-        }
-      });
+      )
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Created!',
+              text: 'Locality created successfully',
+              timer: 2000,
+              showConfirmButton: false
+            });
+            this.isAddingNew = false;
+            this.editForm.reset();
+            this.loadLocalities();
+          },
+          error: (error) => {
+            console.error('Error creating locality:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Error creating locality'
+            });
+          }
+        });
     }
   }
 

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
+import { Component, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PurchaseService } from '../../services/purchase.service';
 import {
   FormBuilder,
   FormGroup,
@@ -25,7 +26,9 @@ export class PurchasesComponent {
   hasFiltered = false;
   isDropdownOpen = false;
 
-  constructor(private authService: AuthService, private fb: FormBuilder, private tokenService: TokenService) {
+  private destroyRef = inject(DestroyRef);
+
+  constructor(private purchaseService: PurchaseService, private fb: FormBuilder, private tokenService: TokenService) {
     this.filterForm = this.fb.group({
       startDate: [''],
       endDate: [''],
@@ -56,13 +59,14 @@ export class PurchasesComponent {
 
     if (startDate && endDate) {
       //muestra las compras entre las fechas seleccionadas
-      this.authService
+      this.purchaseService
         .getPurchasesByDate(startDate, endDate)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(async (data) => {
           this.filteredPurchases = data;
           for (const purchase of this.filteredPurchases) {
             const purchaseProducts = await firstValueFrom(
-              this.authService.getClotheByPurchaseId(purchase.idPu)
+              this.purchaseService.getClotheByPurchaseId(purchase.idPu)
             );
 
             const purchaseWithProducts = {
@@ -78,22 +82,24 @@ export class PurchasesComponent {
 
     if (startDate === '' && endDate === '') {
       //si no hay fechas, se muestra todo
-      this.authService.getPurchases().subscribe(async (data) => {
-        this.filteredPurchases = data;
-        for (const purchase of this.filteredPurchases) {
-          const purchaseProducts = await firstValueFrom(
-            this.authService.getClotheByPurchaseId(purchase.idPu)
-          );
+      this.purchaseService.getPurchases()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(async (data) => {
+          this.filteredPurchases = data;
+          for (const purchase of this.filteredPurchases) {
+            const purchaseProducts = await firstValueFrom(
+              this.purchaseService.getClotheByPurchaseId(purchase.idPu)
+            );
 
-          const purchaseWithProducts = {
-            ...purchase,
-            products: Array.isArray(purchaseProducts)
-              ? purchaseProducts
-              : [purchaseProducts],
-          };
-          this.purchases.push(purchaseWithProducts);
-        }
-      });
+            const purchaseWithProducts = {
+              ...purchase,
+              products: Array.isArray(purchaseProducts)
+                ? purchaseProducts
+                : [purchaseProducts],
+            };
+            this.purchases.push(purchaseWithProducts);
+          }
+        });
     }
   }
 

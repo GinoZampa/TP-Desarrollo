@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BagService } from '../../services/bag.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TokenService } from '../../services/token.service';
-import { User } from '../../models/clothes.model';
+import { User } from '../../models/users.model';
 import { Subscription } from 'rxjs';
 import { PaymentService } from '../../services/payment.service';
 
@@ -21,21 +22,28 @@ export class BagComponent implements OnInit {
   userLocality: any | null = null;
   isAuthenticated: boolean = false;
 
-  private subs: Subscription[] = [];
+  private bagService = inject(BagService);
+  private router = inject(Router);
+  private tokenService = inject(TokenService);
+  private cdRef = inject(ChangeDetectorRef);
+  private paymentService = inject(PaymentService);
+  private destroyRef = inject(DestroyRef);
 
-  constructor(private bagService: BagService, private router: Router, private tokenService: TokenService, private cdRef: ChangeDetectorRef, private paymentService: PaymentService) { }
+  constructor() { }
 
   ngOnInit(): void {
-    const userSub = this.tokenService.currentUser$.subscribe(user => {
-      this.user = user?.user || null;
-      this.cdRef.markForCheck();
-    });
-    this.subs.push(userSub);
+    this.tokenService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        this.user = user?.user || null;
+        this.cdRef.markForCheck();
+      });
 
-    const authSub = this.tokenService.isAuthenticated$.subscribe(isAuth => {
-      this.isAuthenticated = isAuth;
-    });
-    this.subs.push(authSub);
+    this.tokenService.isAuthenticated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(isAuth => {
+        this.isAuthenticated = isAuth;
+      });
 
     this.tokenService.checkAuthStatus();
 
