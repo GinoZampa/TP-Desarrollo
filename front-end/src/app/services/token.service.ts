@@ -16,10 +16,7 @@ export class TokenService {
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    // Verificar estado inicial al crear el servicio (con delay por el servidor)
-    setTimeout(() => {
-      this.checkAuthStatus();
-    }, 400);
+    this.checkAuthStatus();
   }
 
   checkAuthStatus(): void {

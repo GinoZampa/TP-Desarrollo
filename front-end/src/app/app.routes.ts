@@ -44,8 +44,7 @@ export const routes: Routes = [
     },
     { 
         path: 'success', 
-        loadComponent: () => import('./pages/success/success.component').then(m => m.SuccessComponent), 
-        canActivate: [authGuard] 
+        loadComponent: () => import('./pages/success/success.component').then(m => m.SuccessComponent)
     },
     {
         path: 'new-item',
