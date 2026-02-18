@@ -1,98 +1,69 @@
-<div class="purchases-container">
-  <div class="purchases-column">
-    <div class="column-header">
-      <h2>Pending Orders</h2>
-      <span class="counter">{{ pendingPurchases.length }} orders</span>
-    </div>
-
-    <div class="purchases-list">
-      <div class="purchase-card" *ngFor="let purchase of pendingPurchases">
-        <div class="purchase-header">
-          <span class="order-number">Order #{{ purchase.idPu }}</span>
-          <span class="date">{{ purchase.datePu | date:'medium' }}</span>
-        </div>
-
-        <div class="purchase-body">
-          <div class="customer-info">
-            {{ purchase.user.nameUs }} {{ purchase.user.lastNameUs }}
-          </div>
-
-          <div class="address">
-            {{ purchase.user.addressUs }}, {{ purchase.user.locality.nameLo }}
-          </div>
-
-          <!-- Product list -->
-          <div class="products-section" *ngIf="purchase.purchaseClothe && purchase.purchaseClothe.length > 0">
-            <div class="products-header">Products:</div>
-            <div class="product-item" *ngFor="let item of purchase.purchaseClothe">
-              <span class="product-name">{{ item.clothe.nameCl }}</span>
-              <span class="product-details">
-                Size: {{ item.clothe.size }} | Qty: {{ item.quantity }} | {{ item.unitPrice | currency }}
-              </span>
-            </div>
-          </div>
-
-          <div class="amount">
-            Total: {{ purchase.amount | currency }}
-          </div>
-        </div>
-
-        <button class="action-button send" (click)="markAsSent(purchase.shipment.idSh)">
-          Mark as Sent
-        </button>
+<div class="admin-page">
+  <div class="columns-layout">
+    <!-- Pending Column -->
+    <div class="column">
+      <div class="column-header">
+        <h2>Pending</h2>
+        <span class="badge badge-warning">{{ pendingPurchases.length }}</span>
       </div>
 
-      <div class="empty-state" *ngIf="pendingPurchases.length === 0">
+      <div class="column-empty" *ngIf="pendingPurchases.length === 0">
         <p>No pending orders</p>
       </div>
-    </div>
-  </div>
 
-  <div class="purchases-column">
-    <div class="column-header">
-      <h2>Sent Orders</h2>
-      <span class="counter">{{ sentPurchases.length }} orders</span>
-    </div>
-
-    <div class="purchases-list">
-      <div class="purchase-card" *ngFor="let purchase of sentPurchases">
-        <div class="purchase-header">
-          <span class="order-number">Order #{{ purchase.idPu }}</span>
-          <span class="date">{{ purchase.datePu | date:'medium' }}</span>
-        </div>
-
-        <div class="purchase-body">
-          <div class="customer-info">
-            {{ purchase.user.nameUs }} {{ purchase.user.lastNameUs }}
+      <div class="order-cards">
+        <div class="order-card" *ngFor="let purchase of pendingPurchases">
+          <div class="oc-top">
+            <span class="oc-id">#{{ purchase.idPu }}</span>
+            <span class="oc-date">{{ purchase.datePu | date:'shortDate' }}</span>
           </div>
-
-          <div class="address">
-            {{ purchase.user.addressUs }}, {{ purchase.user.locality.nameLo }}
-          </div>
-
-          <!-- Product list -->
-          <div class="products-section" *ngIf="purchase.purchaseClothe && purchase.purchaseClothe.length > 0">
-            <div class="products-header">Products:</div>
-            <div class="product-item" *ngFor="let item of purchase.purchaseClothe">
-              <span class="product-name">{{ item.clothe.nameCl }}</span>
-              <span class="product-details">
-                Size: {{ item.clothe.size }} | Qty: {{ item.quantity }} | {{ item.unitPrice | currency }}
-              </span>
+          <div class="oc-body">
+            <div class="oc-customer">{{ purchase.user.nameUs }} {{ purchase.user.lastNameUs }}</div>
+            <div class="oc-addr">{{ purchase.user.addressUs }}, {{ purchase.user.locality.nameLo }}</div>
+            <div class="oc-products" *ngIf="purchase.purchaseClothe && purchase.purchaseClothe.length > 0">
+              <div class="oc-prod" *ngFor="let item of purchase.purchaseClothe">
+                {{ item.clothe.nameCl }} · {{ item.clothe.size }} · x{{ item.quantity }} · {{ item.unitPrice | currency
+                }}
+              </div>
             </div>
+            <div class="oc-total">{{ purchase.amount | currency }}</div>
           </div>
-
-          <div class="amount">
-            Total: {{ purchase.amount | currency }}
-          </div>
+          <button class="btn-accent oc-action" (click)="markAsSent(purchase.shipment.idSh)">Mark as Sent</button>
         </div>
+      </div>
+    </div>
 
-        <button class="action-button deliver" (click)="markAsDelivered(purchase.shipment.idSh)">
-          Mark as Delivered
-        </button>
+    <!-- Sent Column -->
+    <div class="column">
+      <div class="column-header">
+        <h2>Sent</h2>
+        <span class="badge badge-accent">{{ sentPurchases.length }}</span>
       </div>
 
-      <div class="empty-state" *ngIf="sentPurchases.length === 0">
+      <div class="column-empty" *ngIf="sentPurchases.length === 0">
         <p>No sent orders</p>
+      </div>
+
+      <div class="order-cards">
+        <div class="order-card" *ngFor="let purchase of sentPurchases">
+          <div class="oc-top">
+            <span class="oc-id">#{{ purchase.idPu }}</span>
+            <span class="oc-date">{{ purchase.datePu | date:'shortDate' }}</span>
+          </div>
+          <div class="oc-body">
+            <div class="oc-customer">{{ purchase.user.nameUs }} {{ purchase.user.lastNameUs }}</div>
+            <div class="oc-addr">{{ purchase.user.addressUs }}, {{ purchase.user.locality.nameLo }}</div>
+            <div class="oc-products" *ngIf="purchase.purchaseClothe && purchase.purchaseClothe.length > 0">
+              <div class="oc-prod" *ngFor="let item of purchase.purchaseClothe">
+                {{ item.clothe.nameCl }} · {{ item.clothe.size }} · x{{ item.quantity }} · {{ item.unitPrice | currency
+                }}
+              </div>
+            </div>
+            <div class="oc-total">{{ purchase.amount | currency }}</div>
+          </div>
+          <button class="btn-outline oc-action" (click)="markAsDelivered(purchase.shipment.idSh)">Mark as
+            Delivered</button>
+        </div>
       </div>
     </div>
   </div>

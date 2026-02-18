@@ -1,35 +1,50 @@
 @if(cloth){
-<div class="product-detail-container">
-  <div class="product-card">
-    <div class="image-section">
-      <img [src]="cloth.image" alt="{{cloth.nameCl}}" />
-    </div>
-    <div class="info-section">
-      <h2 class="product-title">{{cloth.nameCl}}</h2>
-      <p class="product-description">{{cloth.description}}</p>
-      <div class="product-meta">
-        <span class="meta-item"> Size: <b>{{cloth.size}}</b></span>
-        <span class="meta-item"> Stock: <b>{{cloth.stock}}</b></span>
-        <span class="meta-item price"> ${{cloth.price}}</span>
+<div class="detail-page">
+  <div class="detail-card">
+    <div class="detail-grid">
+      <!-- Image -->
+      <div class="detail-image-wrap">
+        <img [src]="cloth.image" [alt]="cloth.nameCl" />
       </div>
 
-      <div *ngIf="cloth.stock === 0" class="out-of-stock-message">
-        <p>Out of Stock</p>
-      </div>
+      <!-- Info -->
+      <div class="detail-info">
+        <span class="detail-category">{{ cloth.typeCl }}</span>
+        <h1>{{ cloth.nameCl }}</h1>
+        <p class="detail-desc">{{ cloth.description }}</p>
 
-      <ng-container *ngIf="cloth.stock > 0">
-        <div class="quantity-section">
-          <label>Quantity:</label>
-          <div class="quantity-controls">
-            <button type="button" class="quantity-btn" (click)="decreaseQuantity()">-</button>
-            <span class="quantity-display">{{quantity}}</span>
-            <button type="button" class="quantity-btn" (click)="increaseQuantity()">+</button>
+        <div class="detail-price">${{ cloth.price }}</div>
+
+        <div class="detail-specs">
+          <div class="spec">
+            <span class="spec-label">Size</span>
+            <span class="spec-value">{{ cloth.size }}</span>
+          </div>
+          <div class="spec">
+            <span class="spec-label">Stock</span>
+            <span class="spec-value" [class.out]="cloth.stock === 0">{{ cloth.stock === 0 ? 'Sold out' : cloth.stock + '
+              available' }}</span>
           </div>
         </div>
-        <button type="button" *ngIf="userRole!='admin'" class="add-to-bag-btn" (click)="addToBag(cloth)">
-          Add to bag
-        </button>
-      </ng-container>
+
+        <div *ngIf="cloth.stock === 0" class="sold-out-notice">
+          Currently out of stock
+        </div>
+
+        <ng-container *ngIf="cloth.stock > 0">
+          <div class="quantity-row">
+            <span class="qty-label">Quantity</span>
+            <div class="qty-picker">
+              <button class="qty-btn" (click)="decreaseQuantity()">−</button>
+              <span class="qty-num">{{ quantity }}</span>
+              <button class="qty-btn" (click)="increaseQuantity()">+</button>
+            </div>
+          </div>
+          <button *ngIf="userRole != 'admin'" class="btn-accent add-to-bag" (click)="addToBag(cloth)">
+            Add to Bag
+          </button>
+        </ng-container>
+      </div>
     </div>
   </div>
 </div>

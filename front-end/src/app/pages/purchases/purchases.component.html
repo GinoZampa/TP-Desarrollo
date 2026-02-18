@@ -1,59 +1,82 @@
-<div class="container">
-  <div class="filtro-fechas">
+<div class="admin-page">
+  <div class="page-header">
+    <h1>All Purchases</h1>
+  </div>
+
+  <div class="filter-bar">
     <form [formGroup]="filterForm" (ngSubmit)="filterPurchases()">
-      <label for="startDate">Initial date:</label>
-      <input type="date" id="startDate" formControlName="startDate" />
-
-      <label for="endDate">Final date:</label>
-      <input type="date" id="endDate" formControlName="endDate" />
-
-      <button type="submit">Filter</button>
+      <div class="filter-fields">
+        <div class="filter-field">
+          <label for="startDate">From</label>
+          <input type="date" id="startDate" formControlName="startDate" />
+        </div>
+        <div class="filter-field">
+          <label for="endDate">To</label>
+          <input type="date" id="endDate" formControlName="endDate" />
+        </div>
+        <button type="submit" class="btn-accent filter-btn">Filter</button>
+      </div>
     </form>
   </div>
 
-  <div class="purchases-list">
-    <h2 *ngIf="!hasFiltered">Please select a date range</h2>
-    <h2 *ngIf="hasFiltered && filteredPurchases.length === 0">No purchases found for the selected date range.</h2>
-    <div *ngIf="filteredPurchases.length > 0">
-      <div class="header-container">
-        <h2>Purchases made: {{purchases.length}}</h2>
-        <div class="sort-options">
-          <button class="sort-button" *ngIf="purchases.length !== 0" (click)="isDropdownOpen = !isDropdownOpen">
-            <span>Sort by</span>
-          </button>
+  <div class="empty-state" *ngIf="!hasFiltered">
+    <h2>Select a date range</h2>
+    <p>Choose a start and end date to view purchases</p>
+  </div>
 
-          <div class="dropdown-menu" [class.open]="isDropdownOpen">
-            <div class="dropdown-item" (click)="sortPurchases('date', 'desc'); isDropdownOpen = false">
-              Date (most recent first)
-            </div>
-            <div class="dropdown-item" (click)="sortPurchases('date', 'asc'); isDropdownOpen = false">
-              Date (oldest first)
-            </div>
-            <div class="dropdown-item" (click)="sortPurchases('amount', 'desc'); isDropdownOpen = false">
-              Amount (highest to lowest)
-            </div>
-            <div class="dropdown-item" (click)="sortPurchases('amount', 'asc'); isDropdownOpen = false">
-              Amount (lowest to highest)
-            </div>
-          </div>
+  <div class="empty-state" *ngIf="hasFiltered && filteredPurchases.length === 0">
+    <h2>No purchases found</h2>
+    <p>Try a different date range</p>
+  </div>
+
+  <div *ngIf="filteredPurchases.length > 0">
+    <div class="results-header">
+      <span class="results-count">{{ purchases.length }} purchases</span>
+      <div class="sort-wrap">
+        <button class="btn-outline sort-toggle" (click)="isDropdownOpen = !isDropdownOpen">
+          Sort by ▾
+        </button>
+        <div class="sort-dropdown" [class.open]="isDropdownOpen">
+          <button (click)="sortPurchases('date', 'desc'); isDropdownOpen = false">Date (newest)</button>
+          <button (click)="sortPurchases('date', 'asc'); isDropdownOpen = false">Date (oldest)</button>
+          <button (click)="sortPurchases('amount', 'desc'); isDropdownOpen = false">Amount (high → low)</button>
+          <button (click)="sortPurchases('amount', 'asc'); isDropdownOpen = false">Amount (low → high)</button>
         </div>
       </div>
-      <div *ngFor="let purchase of purchases">
-        <div class="purchase-item">
-          <div class="purchase-main">
-            <p>ID Purchase: {{ purchase.idPu }} - Date: {{ purchase.datePu | date }} - Shipment Number:
-              {{purchase.shipment.idSh}} (Status: {{purchase.shipment.status}}) - Total: {{ purchase.amount | currency
-              }}</p>
-            <p>User: {{purchase.user.nameUs | titlecase}} {{purchase.user.lastNameUs | titlecase}} (ID: {{
-              purchase.user.idUs }}) - Address: {{purchase.user.addressUs | titlecase}},
-              {{purchase.user.locality.nameLo}}</p>
-            <p>Products:</p>
-            <div *ngFor="let product of purchase.products">
-              ID: {{product.clothe.idCl}} - {{ product.clothe.nameCl }} - Quantity: {{product.quantity}} - {{
+    </div>
+
+    <div class="purchase-list">
+      <div class="purchase-card" *ngFor="let purchase of purchases">
+        <div class="pc-top">
+          <span class="pc-id">Order #{{ purchase.idPu }}</span>
+          <span class="pc-date">{{ purchase.datePu | date:'mediumDate' }}</span>
+        </div>
+        <div class="pc-body">
+          <div class="pc-customer">
+            <strong>{{ purchase.user.nameUs | titlecase }} {{ purchase.user.lastNameUs | titlecase }}</strong>
+            <span class="pc-addr">{{ purchase.user.addressUs | titlecase }}, {{ purchase.user.locality.nameLo }}</span>
+          </div>
+          <div class="pc-shipment">
+            Shipment #{{ purchase.shipment.idSh }} ·
+            <span class="badge" [ngClass]="{
+                'status-pending': purchase.shipment.status === 'Pending',
+                'status-sent': purchase.shipment.status === 'Sent',
+                'status-delivered': purchase.shipment.status === 'Delivered'
+              }">
+              {{ purchase.shipment.status }}
+            </span>
+          </div>
+          <div class="pc-products">
+            <div class="pc-prod" *ngFor="let product of purchase.products">
+              {{ product.clothe.idCl }} · {{ product.clothe.nameCl }} · Qty: {{ product.quantity }} · {{
               product.unitPrice | currency }}
             </div>
           </div>
         </div>
+        <div class="pc-footer">
+          <span class="pc-total">{{ purchase.amount | currency }}</span>
+        </div>
       </div>
     </div>
   </div>
+</div>

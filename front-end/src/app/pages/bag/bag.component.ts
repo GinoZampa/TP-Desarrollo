@@ -81,6 +81,11 @@ export class BagComponent implements OnInit {
       });
   }
 
+  addMore(product: Clothes) {
+    const item: Clothes = { ...product, quantity: 1 };
+    this.bagService.addToBag(item);
+  }
+
   goToLogin() {
     this.router.navigate(['/login']);
   }

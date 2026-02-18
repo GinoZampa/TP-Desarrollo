@@ -1,98 +1,79 @@
 @if (!purchaseClothes) {
-<div class="empty-success">
-  <div class="empty-success-content">
-    <h2>No purchase information found</h2>
-    <p>Please try again or contact support</p>
-  </div>
+<div class="empty-state">
+  <h2>No purchase information</h2>
+  <p>Please try again or contact support</p>
 </div>
-}
-
-@else {
-<div class="container success-page">
-  <div class="success-header">
-    <div class="success-icon">
+} @else {
+<div class="success-page">
+  <div class="success-hero">
+    <div class="success-check">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
     </div>
-    <div class="title-wrap">
-      <h2>¡Purchase completed successfully!</h2>
-      <p>Your order has been processed correctly</p>
-    </div>
+    <h1>Order Confirmed!</h1>
+    <p>Your order has been processed successfully</p>
   </div>
 
-  <div class="purchase-item">
-    <div class="purchase-top">
-      <div class="purchase-id">
-        <strong>Purchase ID: #{{ purchase.idPu }}</strong>
-      </div>
-      <div class="purchase-meta">
-        <span class="date">
-          {{ purchase.datePu | date:'dd/MM/yyyy' }}
-        </span>
-        <span class="time">
-          {{ purchase.datePu | date:'HH:mm' }}
-        </span>
-      </div>
-    </div>
-
-    <div class="purchase-body">
-      <div class="left">
-        <div class="customer-info">
-          <h4>Customer Information</h4>
-          <p class="customer-name">
-            <strong>{{ purchase.user.nameUs | titlecase }} {{ purchase.user.lastNameUs | titlecase }}</strong>
-          </p>
-          <p class="address">
-            {{ purchase.user.addressUs | titlecase }}, {{ purchase.user.locality.nameLo }}
-          </p>
+  <div class="success-content">
+    <div class="success-card">
+      <div class="sc-header-row">
+        <div>
+          <span class="sc-label">Order</span>
+          <strong>#{{ purchase.idPu }}</strong>
         </div>
-
-        <div class="shipment-info">
-          <h4> Shipment Information</h4>
-          <p class="shipment-details">
-            <span class="shipment-id">Shipment ID: #{{ purchase.shipment.idSh }}</span>
-            <span class="shipment-status status-{{ purchase.shipment.status.toLowerCase() }}">
-              {{ purchase.shipment.status }}
-            </span>
-          </p>
+        <div class="sc-date">
+          {{ purchase.datePu | date:'mediumDate' }} · {{ purchase.datePu | date:'shortTime' }}
         </div>
+      </div>
 
-        <div class="products-list">
-          <h4>Purchased Products</h4>
-          <div *ngFor="let product of purchaseClothes" class="product-item">
-            <div class="product-left">
-              <div class="product-thumb">
-                <img [src]="product.clothe.image" [alt]="product.clothe.nameCl" />
-              </div>
-              <div class="product-info">
-                <div class="p-name">{{ product.clothe.nameCl }}</div>
-                <div class="p-attr">
-                  <span>Size: {{ product.clothe.size }}</span> •
-                  <span>Quantity: {{ product.quantity }}</span>
-                </div>
-              </div>
+      <div class="sc-section">
+        <h4>Customer</h4>
+        <p>{{ purchase.user.nameUs | titlecase }} {{ purchase.user.lastNameUs | titlecase }}</p>
+        <p class="sc-muted">{{ purchase.user.addressUs | titlecase }}, {{ purchase.user.locality.nameLo }}</p>
+      </div>
+
+      <div class="sc-section">
+        <h4>Shipment</h4>
+        <div class="sc-row">
+          <span>ID: #{{ purchase.shipment.idSh }}</span>
+          <span class="badge" [ngClass]="{
+              'status-pending': purchase.shipment.status === 'Pending',
+              'status-sent': purchase.shipment.status === 'Sent',
+              'status-delivered': purchase.shipment.status === 'Delivered'
+            }">
+            {{ purchase.shipment.status }}
+          </span>
+        </div>
+      </div>
+
+      <div class="sc-section">
+        <h4>Products</h4>
+        <div class="sc-products">
+          <div class="sc-product" *ngFor="let product of purchaseClothes">
+            <div class="sc-product-thumb">
+              <img [src]="product.clothe.image" [alt]="product.clothe.nameCl" />
             </div>
-            <div class="product-right">
-              <div class="unit-price">{{ product.unitPrice | currency }}</div>
+            <div class="sc-product-info">
+              <span class="sc-product-name">{{ product.clothe.nameCl }}</span>
+              <span class="sc-product-detail">Size: {{ product.clothe.size }} · Qty: {{ product.quantity }}</span>
             </div>
+            <span class="sc-product-price">{{ product.unitPrice | currency }}</span>
           </div>
         </div>
       </div>
 
-      <div class="right">
-        <div class="amount-container">
-          <div class="total-label">Total Paid</div>
-          <div class="amount">{{ purchase.amount | currency }}</div>
-        </div>
+      <div class="sc-total">
+        <span>Total Paid</span>
+        <span class="sc-total-amount">{{ purchase.amount | currency }}</span>
       </div>
     </div>
-  </div>
 
-  <div class="action-buttons">
-    <button class="back-button" (click)="navigate()">
-      Back to Home
-    </button>
-    <button class="print-button" onclick="window.print()">
-      Print Receipt
-    </button>
+    <div class="success-actions">
+      <button class="btn-accent" (click)="navigate()">Continue Shopping</button>
+      <button class="btn-outline" onclick="window.print()">Print Receipt</button>
+    </div>
   </div>
 </div>
 }

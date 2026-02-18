@@ -1,104 +1,77 @@
-<div class="localities-container">
-  <div class="header">
-    <h1 class="title">Manage Localities</h1>
-    <button class="btn btn-primary" (click)="addNewLocality()">
-      Add New Locality
-    </button>
+<div class="admin-page">
+  <div class="page-header">
+    <h1>Localities</h1>
+    <button class="btn-accent" (click)="addNewLocality()">+ Add Locality</button>
   </div>
 
-  <div class="edit-form" *ngIf="isAddingNew">
+  <!-- Add new form -->
+  <div class="form-card" *ngIf="isAddingNew" style="margin-bottom: 24px;">
+    <h3>New Locality</h3>
     <form [formGroup]="editForm" (ngSubmit)="createLocality()">
-      <h2>Creating New Locality</h2>
-      <div class="form-group">
-        <label for="nameLo">Name</label>
-        <input type="text" id="nameLo" formControlName="nameLo" [class.is-invalid]="hasError('nameLo', 'required')">
-        <span class="error-message" *ngIf="hasError('nameLo', 'required')">
-          Name is required
-        </span>
+      <div class="form-grid" style="margin-top: 16px;">
+        <div class="form-group">
+          <label for="nameLo">Name</label>
+          <input type="text" id="nameLo" formControlName="nameLo" />
+          <span class="error-message" *ngIf="hasError('nameLo', 'required')">Required</span>
+        </div>
+        <div class="form-group">
+          <label for="postalCode">Postal Code</label>
+          <input type="number" id="postalCode" formControlName="postalCode" />
+          <span class="error-message" *ngIf="hasError('postalCode', 'required')">Required</span>
+        </div>
+        <div class="form-group">
+          <label for="cost">Shipping Cost</label>
+          <input type="number" id="cost" formControlName="cost" min="0" />
+          <span class="error-message" *ngIf="hasError('cost', 'required')">Required</span>
+        </div>
       </div>
-
-      <div class="form-group">
-        <label for="postalCode">Postal Code</label>
-        <input type="number" id="postalCode" formControlName="postalCode"
-          [class.is-invalid]="hasError('postalCode', 'required')">
-        <span class="error-message" *ngIf="hasError('postalCode', 'required')">
-          Postal code is required
-        </span>
-      </div>
-
-      <div class="form-group">
-        <label for="cost">Cost</label>
-        <input type="number" id="cost" formControlName="cost" min="0" [class.is-invalid]="hasError('cost', 'required')">
-        <span class="error-message" *ngIf="hasError('cost', 'required')">
-          Cost is required
-        </span>
-      </div>
-
       <div class="form-actions">
-        <button type="submit" class="btn btn-save" [disabled]="editForm.invalid">
-          Create
-        </button>
-        <button type="button" class="btn btn-cancel" (click)="cancelAdd()">
-          Cancel
-        </button>
+        <button type="submit" class="btn-accent" [disabled]="editForm.invalid">Create</button>
+        <button type="button" class="btn-ghost" (click)="cancelAdd()">Cancel</button>
       </div>
     </form>
   </div>
 
+  <!-- Localities grid -->
   <div class="localities-grid" *ngIf="localities.length > 0">
-    <div class="locality-card" *ngFor="let locality of localities">
-      <div class="locality-info" *ngIf="editingLocality?.idLo !== locality.idLo">
-        <div class="locality-details">
+    <div class="loc-card" *ngFor="let locality of localities" [class.inactive]="!locality.isActive">
+      <!-- View mode -->
+      <div class="loc-view" *ngIf="editingLocality?.idLo !== locality.idLo">
+        <div class="loc-info">
           <h3>{{ locality.nameLo }}</h3>
-          <p><strong>Postal Code:</strong> {{ locality.postalCode }}</p>
-          <p><strong>Cost:</strong> ${{ locality.cost }}</p>
+          <div class="loc-meta">
+            <span>CP: {{ locality.postalCode }}</span>
+            <span>Cost: ${{ locality.cost }}</span>
+          </div>
         </div>
-        <div class="locality-actions">
-          <button class="btn btn-edit" (click)="editLocality(locality)">
-            Edit
-          </button>
-          <button class="btn btn-delete" (click)="deleteLocality(locality)" *ngIf="locality.isActive">
-            Delete
-          </button>
-          <button class="btn btn-delete" (click)="activateLocality(locality)" *ngIf="!locality.isActive">
-            Activate
-          </button>
+        <div class="loc-actions">
+          <button class="btn-ghost" (click)="editLocality(locality)">Edit</button>
+          <button class="btn-ghost btn-danger-ghost" (click)="deleteLocality(locality)"
+            *ngIf="locality.isActive">Deactivate</button>
+          <button class="btn-ghost btn-success-ghost" (click)="activateLocality(locality)"
+            *ngIf="!locality.isActive">Activate</button>
         </div>
       </div>
 
-      <div class="edit-form" *ngIf="editingLocality?.idLo === locality.idLo">
+      <!-- Edit mode -->
+      <div class="loc-edit" *ngIf="editingLocality?.idLo === locality.idLo">
         <form [formGroup]="editForm" (ngSubmit)="updateLocality()">
           <div class="form-group">
-            <label for="nameLo">Name</label>
-            <input type="text" id="nameLo" formControlName="nameLo" [class.is-invalid]="hasError('nameLo', 'required')">
-            <span class="error-message" *ngIf="hasError('nameLo', 'required')">
-              Name is required
-            </span>
+            <label>Name</label>
+            <input type="text" formControlName="nameLo" />
           </div>
-
           <div class="form-group">
-            <label for="postalCode">Postal Code</label>
-            <input type="number" id="postalCode" formControlName="postalCode" [disabled]="true"
-              [class.is-invalid]="hasError('postalCode', 'required')">
-            <small class="form-text">Postal code cannot be changed</small>
+            <label>Postal Code</label>
+            <input type="number" formControlName="postalCode" [attr.disabled]="true" />
+            <small class="hint">Cannot be changed</small>
           </div>
-
           <div class="form-group">
-            <label for="cost">Cost</label>
-            <input type="number" id="cost" formControlName="cost" min="0"
-              [class.is-invalid]="hasError('cost', 'required')">
-            <span class="error-message" *ngIf="hasError('cost', 'required')">
-              Cost is required
-            </span>
+            <label>Cost</label>
+            <input type="number" formControlName="cost" min="0" />
           </div>
-
           <div class="form-actions">
-            <button type="submit" class="btn btn-save" [disabled]="editForm.invalid">
-              Save
-            </button>
-            <button type="button" class="btn btn-cancel" (click)="cancelEdit()">
-              Cancel
-            </button>
+            <button type="submit" class="btn-accent" [disabled]="editForm.invalid">Save</button>
+            <button type="button" class="btn-ghost" (click)="cancelEdit()">Cancel</button>
           </div>
         </form>
       </div>

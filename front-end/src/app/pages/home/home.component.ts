@@ -7,12 +7,12 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
 import Swal from 'sweetalert2';
 import { TokenService } from '../../services/token.service';
-import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
@@ -23,6 +23,17 @@ export class HomeComponent implements OnInit {
   userRole: string | null = null;
   searchDesc: string = '';
 
+  showFilters: boolean = false;
+  filterType: string = '';
+  filterSize: string = '';
+  filterPriceMin: number | null = null;
+  filterPriceMax: number | null = null;
+
+  currentPage: number = 1;
+  pageSize: number = 12;
+  totalProducts: number = 0;
+  totalPages: number = 1;
+
   private clothesService = inject(ClothesService);
   private router = inject(Router);
   private tokenService = inject(TokenService);
@@ -30,10 +41,7 @@ export class HomeComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
-  private subs: Subscription[] = []; // Leaving this for now if used elsewhere, but not pushing to it for this sub
-
   ngOnInit(): void {
-    // 1) me suscribo al currentUser$ para detectar cambios
     this.tokenService.currentUser$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(user => {
@@ -42,11 +50,11 @@ export class HomeComponent implements OnInit {
         this.loadProducts();
       });
 
-    // 2) cargará de localStorage si ya había token
     this.tokenService.checkAuthStatus();
 
     this.route.paramMap.subscribe(params => {
       this.searchDesc = params.get('desc') || '';
+      this.currentPage = 1;
       this.loadProducts();
     });
   }
@@ -56,10 +64,22 @@ export class HomeComponent implements OnInit {
       this.clothesService.searchProducts(this.searchDesc).subscribe(products => {
         this.products = products;
         this.filteredProducts = products;
+        this.totalProducts = products.length;
+        this.totalPages = 1;
+      });
+    } else if (this.hasActiveFilters()) {
+      this.clothesService.getProducts(1000, 0).subscribe((response) => {
+        this.products = response.data;
+        this.totalProducts = response.total;
+        this.totalPages = 1;
+        this.applyFilters();
       });
     } else {
-      this.clothesService.getProducts().subscribe((response) => {
+      const offset = (this.currentPage - 1) * this.pageSize;
+      this.clothesService.getProducts(this.pageSize, offset).subscribe((response) => {
         this.products = response.data;
+        this.totalProducts = response.total;
+        this.totalPages = Math.ceil(response.total / this.pageSize);
         this.filteredProducts = response.data;
       });
     }
@@ -69,23 +89,75 @@ export class HomeComponent implements OnInit {
     this.router.navigate([route, id]);
   }
 
-  filterByCategory(category: string) {
-    //Inicialmente se muestran todos los prod, al elegir un tipo de prenda se filtran los productos desde el back
-    if (this.selectedCategory === category) {
-      this.selectedCategory = '';
-      this.filteredProducts = this.products;
-    } else {
-      this.selectedCategory = category;
-      this.clothesService
-        .getProductsByType(category)
-        .subscribe((data: Clothe[]) => {
-          this.filteredProducts = data;
-        });
-    }
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
   }
 
-  isCategorySelected(category: string): boolean {
-    return this.selectedCategory === category;
+  hasActiveFilters(): boolean {
+    return !!(this.filterType || this.filterSize ||
+      (this.filterPriceMin !== null && this.filterPriceMin > 0) ||
+      (this.filterPriceMax !== null && this.filterPriceMax > 0));
+  }
+
+  applyFilters(): void {
+    if (!this.hasActiveFilters()) {
+      this.currentPage = 1;
+      this.loadProducts();
+      return;
+    }
+
+    if (this.totalPages > 1) {
+      this.currentPage = 1;
+      this.loadProducts();
+      return;
+    }
+
+    let result = [...this.products];
+
+    if (this.filterType) {
+      result = result.filter(p => p.typeCl === this.filterType);
+    }
+    if (this.filterSize) {
+      result = result.filter(p => p.size === this.filterSize);
+    }
+    if (this.filterPriceMin !== null && this.filterPriceMin > 0) {
+      result = result.filter(p => p.price >= this.filterPriceMin!);
+    }
+    if (this.filterPriceMax !== null && this.filterPriceMax > 0) {
+      result = result.filter(p => p.price <= this.filterPriceMax!);
+    }
+
+    this.filteredProducts = result;
+  }
+
+  clearFilters(): void {
+    this.filterType = '';
+    this.filterSize = '';
+    this.filterPriceMin = null;
+    this.filterPriceMax = null;
+    this.currentPage = 1;
+    this.loadProducts();
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.loadProducts();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisible = 5;
+    let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(this.totalPages, start + maxVisible - 1);
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
   confirmAction(id: number): void {
@@ -98,8 +170,9 @@ export class HomeComponent implements OnInit {
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.clothesService.deleteProduct(id).subscribe(() => {
-          this.loadProducts();
+        this.clothesService.deleteProduct(id).subscribe({
+          next: () => this.loadProducts(),
+          error: () => this.loadProducts(),
         });
         Swal.fire('¡Done!', 'Product has been deleted.', 'success');
       } else if (result.dismiss === Swal.DismissReason.cancel) {

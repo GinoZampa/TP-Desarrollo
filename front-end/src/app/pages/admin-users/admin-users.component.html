@@ -1,19 +1,19 @@
-<div class="container">
-    <div class="header-container">
-        <h2>Registered Users</h2>
-        <span class="user-count">{{ users.length }} user(s)</span>
+<div class="admin-page">
+    <div class="page-header">
+        <h1>Users</h1>
+        <span class="header-count">{{ users.length }} registered</span>
     </div>
 
-    <div *ngIf="loading" class="loading">
+    <div class="loading-state" *ngIf="loading">
         <p>Loading users...</p>
     </div>
 
-    <div *ngIf="!loading && users.length === 0" class="empty-state">
-        <p>No registered users found.</p>
+    <div class="empty-state" *ngIf="!loading && users.length === 0">
+        <h2>No users found</h2>
     </div>
 
-    <div *ngIf="!loading && users.length > 0" class="users-table-container">
-        <table class="users-table">
+    <div class="table-wrap" *ngIf="!loading && users.length > 0">
+        <table class="data-table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -25,30 +25,27 @@
                     <th>Role</th>
                     <th>Purchases</th>
                     <th>Last Purchase</th>
-                    <th>Pending Shipments</th>
+                    <th>Pending</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let user of users">
                     <td>{{ user.idUs }}</td>
-                    <td>{{ user.nameUs }} {{ user.lastNameUs }}</td>
+                    <td class="name-cell">{{ user.nameUs }} {{ user.lastNameUs }}</td>
                     <td>{{ user.emailUs }}</td>
                     <td>{{ user.phoneUs }}</td>
                     <td>{{ user.addressUs }}</td>
                     <td>{{ user.locality.nameLo || '-' }}</td>
                     <td>
-                        <span class="badge" [ngClass]="user.rol === 'admin' ? 'badge-admin' : 'badge-user'">
+                        <span class="badge" [ngClass]="user.rol === 'admin' ? 'badge-accent' : 'badge-success'">
                             {{ user.rol }}
                         </span>
                     </td>
                     <td class="center">{{ user.purchaseCount }}</td>
                     <td>{{ formatDate(user.lastPurchaseDate) }}</td>
                     <td class="center">
-                        <span *ngIf="user.pendingShipments > 0" class="badge badge-pending">
+                        <span class="badge" [ngClass]="user.pendingShipments > 0 ? 'badge-warning' : 'badge-success'">
                             {{ user.pendingShipments }}
-                        </span>
-                        <span *ngIf="user.pendingShipments === 0" class="badge badge-ok">
-                            0
                         </span>
                     </td>
                 </tr>

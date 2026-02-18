@@ -1,42 +1,117 @@
-<div class="home-container">
-  <nav class="category-bar" *ngIf="searchDesc == ''">
-    <button (click)="filterByCategory('T-shirt')" [class.selected]="isCategorySelected('T-shirt')">T-Shirts</button>
-    <button (click)="filterByCategory('Pants')" [class.selected]="isCategorySelected('Pants')">Pants</button>
-    <button (click)="filterByCategory('Shoes')" [class.selected]="isCategorySelected('Shoes')">Shoes</button>
-  </nav>
+<div class="home-page">
+  <!-- Header row -->
+  <div class="home-header" *ngIf="searchDesc === ''">
+    <h1>Products</h1>
+    <button class="btn-outline filter-toggle" (click)="toggleFilters()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+      </svg>
+      Filters
+    </button>
+  </div>
 
+  <!-- Search results header -->
+  <div class="search-info" *ngIf="searchDesc !== ''">
+    <h2>Results for "{{ searchDesc }}"</h2>
+    <span class="result-count">{{ filteredProducts.length }} item(s)</span>
+  </div>
+
+  <!-- Filter panel -->
+  <div class="filter-panel" *ngIf="showFilters">
+    <div class="filter-group">
+      <label>Type</label>
+      <div class="filter-options">
+        <button class="filter-chip" [class.active]="filterType === ''"
+          (click)="filterType = ''; applyFilters()">All</button>
+        <button class="filter-chip" [class.active]="filterType === 'T-shirt'"
+          (click)="filterType = 'T-shirt'; applyFilters()">T-Shirts</button>
+        <button class="filter-chip" [class.active]="filterType === 'Pants'"
+          (click)="filterType = 'Pants'; applyFilters()">Pants</button>
+        <button class="filter-chip" [class.active]="filterType === 'Shoes'"
+          (click)="filterType = 'Shoes'; applyFilters()">Shoes</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label>Size</label>
+      <div class="filter-options">
+        <button class="filter-chip" [class.active]="filterSize === ''"
+          (click)="filterSize = ''; applyFilters()">All</button>
+        <button class="filter-chip" [class.active]="filterSize === 'XS'"
+          (click)="filterSize = 'XS'; applyFilters()">XS</button>
+        <button class="filter-chip" [class.active]="filterSize === 'S'"
+          (click)="filterSize = 'S'; applyFilters()">S</button>
+        <button class="filter-chip" [class.active]="filterSize === 'M'"
+          (click)="filterSize = 'M'; applyFilters()">M</button>
+        <button class="filter-chip" [class.active]="filterSize === 'L'"
+          (click)="filterSize = 'L'; applyFilters()">L</button>
+        <button class="filter-chip" [class.active]="filterSize === 'XL'"
+          (click)="filterSize = 'XL'; applyFilters()">XL</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label>Price Range</label>
+      <div class="price-range">
+        <input type="number" placeholder="Min" [(ngModel)]="filterPriceMin" (input)="applyFilters()" />
+        <span class="price-sep">—</span>
+        <input type="number" placeholder="Max" [(ngModel)]="filterPriceMax" (input)="applyFilters()" />
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button class="btn-ghost" (click)="clearFilters()">Clear all</button>
+    </div>
+  </div>
+
+  <!-- Product Grid -->
   <div class="product-grid">
     <div class="product-card" *ngFor="let product of filteredProducts">
-      <div class="image-wrap">
-        <img [src]="product.image" alt="{{ product.nameCl }}" />
-      </div>
-      <div class="card-content">
-        <h3>{{ product.nameCl }}</h3>
-        <p class="desc">{{ product.description }}</p>
-        <div class="meta">
-          <span><b>Size</b>: {{ product.size }}</span>
-          <span [class.out]="product.stock === 0">
-            <ng-container *ngIf="product.stock === 0">
-              <strong>Out of stock</strong>
-            </ng-container>
-            <ng-container *ngIf="product.stock !== 0">
-              <strong>Stock:</strong> {{ product.stock }}
-            </ng-container>
-          </span>
-          <span><b>${{ product.price }}</b></span>
+      <div class="card-image" (click)="product.stock > 0 ? navegate('/products/', product.idCl) : null">
+        <img [src]="product.image" [alt]="product.nameCl" />
+        <div class="card-overlay" *ngIf="product.stock > 0">
+          <span class="overlay-btn">View</span>
         </div>
-        <div class="actions">
-          <button *ngIf="product.stock > 0" class="btn-primary"
-            (click)="navegate('/products/', product.idCl)">
-            View Product
-          </button>
-          <div *ngIf="userRole === 'admin'" class="admin-actions">
-            <button class="btn" (click)="navegate('/edit-price/', product.idCl)">Edit Price</button>
-            <button class="btn" (click)="navegate('/add-stock/', product.idCl)"> Add Stock</button>
-            <button class="btn btn-danger" (click)="confirmAction(product.idCl)">Delete</button>
-          </div>
+        <span class="out-badge" *ngIf="product.stock === 0">Out of stock</span>
+        <span class="size-tag">{{ product.size }}</span>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">{{ product.nameCl }}</h3>
+        <p class="card-desc">{{ product.description }}</p>
+        <div class="card-footer">
+          <span class="card-price">${{ product.price }}</span>
+          <span class="card-stock" *ngIf="product.stock > 0">
+            <span class="stock-dot"></span>
+            {{ product.stock }} in stock
+          </span>
+        </div>
+        <div class="admin-bar" *ngIf="userRole === 'admin'">
+          <button class="btn-ghost" (click)="navegate('/edit-price/', product.idCl)">Edit Price</button>
+          <button class="btn-ghost" (click)="navegate('/add-stock/', product.idCl)">Add Stock</button>
+          <button class="btn-ghost btn-delete" (click)="confirmAction(product.idCl)">Delete</button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="filteredProducts.length === 0">
+    <h2>No products found</h2>
+    <p>Try adjusting your filters or search term</p>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1 && searchDesc === ''">
+    <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+      ‹ Prev
+    </button>
+    <button *ngFor="let page of getPageNumbers()" class="page-btn" [class.active]="page === currentPage"
+      (click)="goToPage(page)">
+      {{ page }}
+    </button>
+    <button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+      Next ›
+    </button>
   </div>
 </div>

@@ -1,22 +1,24 @@
-<div class="edit-price-container">
+<div class="admin-page">
     @if (loading) {
-    <div class="spinner-border text-primary" role="status">
-        <span class="sr-only">Loading...</span>
-    </div>
+    <div class="loading-state">Loading...</div>
     }
 
-    @if (!loading){
-    <h2 class="subtitle">Update product price</h2>
-    <form [formGroup]="editPriceForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-            <label for="productName">Product name: {{cloth.nameCl}}</label>
+    @if (!loading) {
+    <div class="action-card">
+        <div class="action-header">
+            <h2>Update Price</h2>
+            <span class="product-name">{{ cloth.nameCl }}</span>
         </div>
-        <div class="form-group">
-            <label for="newPrice">New Price</label>
-            <input type="number" id="newPrice" class="form-control" formControlName="price" name="newPrice" required
-                min="0" />
-        </div>
-        <button type="submit" class="btn btn-primary" [disabled]="!editPriceForm.valid">Update Price</button>
-    </form>
+        <form [formGroup]="editPriceForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="newPrice">New Price</label>
+                <input type="number" id="newPrice" formControlName="price" min="0" />
+            </div>
+            <button type="submit" class="btn-accent" [disabled]="!editPriceForm.valid"
+                style="width: 100%; padding: 14px;">
+                Update Price
+            </button>
+        </form>
+    </div>
     }
 </div>

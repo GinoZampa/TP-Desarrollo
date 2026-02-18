@@ -1,51 +1,15 @@
-<div class="new-item-container">
-  <form [formGroup]="loginForm" novalidate (ngSubmit)="onSubmit()" class="form-card">
-    <div class="form-card__main">
-      <div class="form-card__content">
-        <div class="form-header">
-          <h1 class="title">Add new clothe</h1>
-        </div>
-
+<div class="admin-page">
+  <div class="new-item-layout">
+    <div class="form-side">
+      <h1>Add New Product</h1>
+      <form [formGroup]="loginForm" novalidate (ngSubmit)="onSubmit()">
         <div class="form-grid">
-          <div class="field">
+          <div class="form-group">
             <label for="nameCl">Name</label>
-            <input id="nameCl" type="text" placeholder="Vans Knu" formControlName="nameCl" autocomplete="off">
-            <span *ngIf="hasError('nameCl','required')" class="error-message">Name is required</span>
+            <input id="nameCl" type="text" placeholder="Vans Knu" formControlName="nameCl" autocomplete="off" />
+            <span *ngIf="hasError('nameCl','required')" class="error-message">Required</span>
           </div>
-
-          <div class="field">
-            <label for="price">Price</label>
-            <input id="price" type="number" min="0" placeholder="100" formControlName="price" autocomplete="off">
-            <span *ngIf="hasError('price','required')" class="error-message">Price is required</span>
-          </div>
-
-          <div class="field">
-            <label for="stock">Stock</label>
-            <input id="stock" type="number" min="0" placeholder="10" formControlName="stock" autocomplete="off">
-            <span *ngIf="hasError('stock','required')" class="error-message">Stock is required</span>
-          </div>
-
-          <div class="field">
-            <label for="size">Size</label>
-            <select id="size" formControlName="size">
-              <option value="" disabled selected>Choose...</option>
-              <option value="XS">XS</option>
-              <option value="S">S</option>
-              <option value="M">M</option>
-              <option value="L">L</option>
-              <option value="XL">XL</option>
-            </select>
-            <span *ngIf="hasError('size','required')" class="error-message">Size is required</span>
-          </div>
-
-          <div class="field field--wide">
-            <label for="description">Description</label>
-            <input id="description" type="text" placeholder="White pants" formControlName="description"
-              autocomplete="off">
-            <span *ngIf="hasError('description','required')" class="error-message">Description is required</span>
-          </div>
-
-          <div class="field">
+          <div class="form-group">
             <label for="typeCl">Type</label>
             <select id="typeCl" formControlName="typeCl">
               <option value="" disabled selected>Choose...</option>
@@ -53,39 +17,72 @@
               <option value="Pants">Pants</option>
               <option value="Shoes">Shoes</option>
             </select>
-            <span *ngIf="hasError('typeCl','required')" class="error-message">Type is required</span>
-          </div>
-
-          <div class="field field--wide">
-            <label for="image">Image URL</label>
-            <input id="image" type="text" placeholder="https://..." formControlName="image" autocomplete="off">
-            <span *ngIf="hasError('image','required')" class="error-message">Image is required</span>
+            <span *ngIf="hasError('typeCl','required')" class="error-message">Required</span>
           </div>
         </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn-submit">Add</button>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="price">Price</label>
+            <input id="price" type="number" min="0" placeholder="100" formControlName="price" autocomplete="off" />
+            <span *ngIf="hasError('price','required')" class="error-message">Required</span>
+          </div>
+          <div class="form-group">
+            <label for="stock">Stock</label>
+            <input id="stock" type="number" min="0" placeholder="10" formControlName="stock" autocomplete="off" />
+            <span *ngIf="hasError('stock','required')" class="error-message">Required</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="size">Size</label>
+          <select id="size" formControlName="size">
+            <option value="" disabled selected>Choose...</option>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+          </select>
+          <span *ngIf="hasError('size','required')" class="error-message">Required</span>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <input id="description" type="text" placeholder="White pants" formControlName="description"
+            autocomplete="off" />
+          <span *ngIf="hasError('description','required')" class="error-message">Required</span>
+        </div>
+
+        <div class="form-group">
+          <label for="image">Image URL</label>
+          <input id="image" type="text" placeholder="https://..." formControlName="image" autocomplete="off" />
+          <span *ngIf="hasError('image','required')" class="error-message">Required</span>
+        </div>
+
+        <button type="submit" class="btn-accent" style="width: 100%; padding: 14px; margin-top: 8px;">Add
+          Product</button>
+      </form>
+    </div>
+
+    <aside class="preview-side">
+      <div class="preview-label">Preview</div>
+      <div class="preview-card">
+        <div class="preview-img">
+          <img [src]="loginForm.get('image')?.value || 'https://images.emojiterra.com/openmoji/v13.1/512px/1f455.png'"
+            alt="preview" />
+        </div>
+        <div class="preview-body">
+          <h3>{{ loginForm.get('nameCl')?.value || 'Product name' }}</h3>
+          <p class="preview-desc">{{ loginForm.get('description')?.value || 'Short description' }}</p>
+          <div class="preview-meta">
+            <span>Size: {{ loginForm.get('size')?.value || '-' }}</span>
+            <span>Stock: {{ loginForm.get('stock')?.value || 0 }}</span>
+            <span class="preview-price">{{ loginForm.get('price')?.value ? ('$' + loginForm.get('price')?.value) : '-'
+              }}</span>
+          </div>
         </div>
       </div>
-
-      <aside class="form-preview">
-        <div class="preview-card">
-          <div class="preview-image">
-            <img [src]="loginForm.get('image')?.value || 'https://images.emojiterra.com/openmoji/v13.1/512px/1f455.png'"
-              alt="preview">
-          </div>
-          <div class="preview-body">
-            <h3 class="preview-title">{{ loginForm.get('nameCl')?.value || 'Product name' }}</h3>
-            <p class="preview-desc">{{ loginForm.get('description')?.value || 'Short description' }}</p>
-            <div class="preview-meta">
-              <span class="size">Size: {{ loginForm.get('size')?.value || '-' }}</span>
-              <span class="stock">Stock: {{ loginForm.get('stock')?.value || 0 }}</span>
-              <span class="price">{{ loginForm.get('price')?.value ? ('$' + loginForm.get('price')?.value) : '-'
-                }}</span>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </form>
+    </aside>
+  </div>
 </div>

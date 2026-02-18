@@ -12,12 +12,12 @@ export class ClothesService {
 
   constructor(private http: HttpClient) { }
 
-  getProducts(): Observable<{ data: Clothe[] }> {
+  getProducts(limit = 12, offset = 0): Observable<{ data: Clothe[]; total: number }> {
     const headers = new HttpHeaders({
       'Cache-Control': 'no-cache',
       'Pragma': 'no-cache',
     });
-    return this.http.get<{ data: Clothe[] }>(this.urlBase, { headers });
+    return this.http.get<{ data: Clothe[]; total: number }>(`${this.urlBase}?limit=${limit}&offset=${offset}`, { headers });
   }
 
   getProductById(id: number): Observable<Clothe> {

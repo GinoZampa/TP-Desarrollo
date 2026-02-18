@@ -1,69 +1,73 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Slicer's Shop</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" (click)="navigate('')">Home</a>
-                </li>
-                <li class="nav-item" *ngIf="!isAuthenticated">
-                    <a class="nav-link" (click)="navigate('login')">Login</a>
-                </li>
-                <li class="nav-item" *ngIf="userRole!='admin'">
-                    <a class="nav-link" (click)="navigate('bag')">Bag</a>
-                </li>
-                <li class="nav-item" *ngIf="userRole==='user'">
-                    <a class="nav-link" (click)="navigate('user-purchases')">View Purchases</a>
-                </li>
-                <li class="nav-item" *ngIf="userRole==='admin'">
-                    <a class="nav-link" (click)="navigate('new-item')">Add Item</a>
-                </li>
-                <li class="nav-item" *ngIf="userRole==='admin'">
-                    <a class="nav-link" (click)="navigate('purchases')">View Purchases</a>
-                </li>
-                <li class="nav-item" *ngIf="userRole==='admin'">
-                    <a class="nav-link" (click)="navigate('pending-purchases')">Pending Purchases</a>
-                </li>
-                <li class="nav-item" *ngIf="userRole==='admin'">
-                    <a class="nav-link" (click)="navigate('localities')">Localities</a>
-                </li>
-                <li class="nav-item" *ngIf="userRole==='admin'">
-                    <a class="nav-link" (click)="navigate('admin-users')">Users</a>
-                </li>
-                <li class="nav-item search-item">
-                    <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchTerm"
-                        (input)="onSearchChange()" (keydown.enter)="onSearchEnter($any($event))" autocomplete="off" />
-                    <ul class="search-results" *ngIf="searchResults.length > 0">
-                        <li *ngFor="let product of searchResults" (click)="goToProduct(product.idCl)">
-                            {{ product.nameCl }}
-                        </li>
-                    </ul>
-                    <div class="no-results" *ngIf="searchTerm.length >= 3 && searchResults.length === 0">
-                        No products found.
+<nav class="site-nav">
+    <div class="nav-inner">
+        <!-- Logo -->
+        <a class="nav-logo" (click)="navigate('')">SLICER</a>
+
+        <!-- Desktop Links -->
+        <div class="nav-links">
+            <a class="nav-link" (click)="navigate('')">Home</a>
+            <a class="nav-link" *ngIf="!isAuthenticated" (click)="navigate('login')">Login</a>
+            <a class="nav-link" *ngIf="userRole !== 'admin'" (click)="navigate('bag')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 01-8 0" />
+                </svg>
+                Bag
+            </a>
+            <a class="nav-link" *ngIf="userRole === 'user'" (click)="navigate('user-purchases')">My Orders</a>
+
+            <!-- Admin Links -->
+            <a class="nav-link" *ngIf="userRole === 'admin'" (click)="navigate('new-item')">New Item</a>
+            <a class="nav-link" *ngIf="userRole === 'admin'" (click)="navigate('purchases')">Purchases</a>
+            <a class="nav-link" *ngIf="userRole === 'admin'" (click)="navigate('pending-purchases')">Pending</a>
+            <a class="nav-link" *ngIf="userRole === 'admin'" (click)="navigate('localities')">Localities</a>
+            <a class="nav-link" *ngIf="userRole === 'admin'" (click)="navigate('admin-users')">Users</a>
+        </div>
+
+        <!-- Search -->
+        <div class="nav-search">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input type="text" placeholder="Search products..." [(ngModel)]="searchTerm" (input)="onSearchChange()"
+                (keydown.enter)="onSearchEnter($any($event))" autocomplete="off" />
+            <ul class="search-dropdown" *ngIf="searchResults.length > 0">
+                <li *ngFor="let product of searchResults" (click)="goToProduct(product.idCl)">
+                    <img *ngIf="product.image" [src]="product.image" [alt]="product.nameCl" class="search-thumb" />
+                    <div class="search-item-info">
+                        <span class="search-item-name">{{ product.nameCl }}</span>
+                        <span class="search-item-price">${{ product.price }}</span>
                     </div>
                 </li>
             </ul>
-            <ul class="navbar-nav">
-                <li class="nav-item custom-dropdown" *ngIf="userRole==='user'">
-                    <a class="nav-link " role="button">
-                        Options
-                    </a>
-                    <ul class="custom-dropdown-menu">
-                        <li><a class="custom-dropdown-item" (click)="navigate('settings')">Settings</a></li>
-                        <li><a class="custom-dropdown-item" (click)="logout()">Close</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item" *ngIf="userRole==='admin'">
-                    <a class="nav-link" (click)="logout()">Close</a>
-                </li>
-                <li class="nav-item" *ngIf="userRole==='user'">
-                    <a class="nav-link">¡Hello {{ userName | titlecase}}!</a>
-                </li>
-            </ul>
+            <div class="search-no-results" *ngIf="searchTerm.length >= 3 && searchResults.length === 0">
+                No products found
+            </div>
+        </div>
+
+        <!-- Right section -->
+        <div class="nav-right">
+            <span class="nav-greeting" *ngIf="userRole === 'user'">Hi, {{ userName | titlecase }}</span>
+
+            <div class="nav-user-menu" *ngIf="userRole === 'user'">
+                <button class="nav-user-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                </button>
+                <div class="user-dropdown">
+                    <a (click)="navigate('settings')">Settings</a>
+                    <a (click)="logout()" class="logout-link">Logout</a>
+                </div>
+            </div>
+
+            <button *ngIf="userRole === 'admin'" class="btn-ghost nav-logout" (click)="logout()">Logout</button>
         </div>
     </div>
 </nav>

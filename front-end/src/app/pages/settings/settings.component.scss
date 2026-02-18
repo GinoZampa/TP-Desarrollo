@@ -1,165 +1,72 @@
-.settings-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: var(--back-color);
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+.settings-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px var(--container-padding);
+
+  > h1 {
+    font-size: 1.5rem;
+    margin-bottom: 32px;
+  }
 }
 
-.settings-title {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: var(--title-color);
-  font-size: 2rem;
-  font-weight: 600;
-}
-
-.settings-options {
+.settings-grid {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 20px;
 }
 
 .setting-card {
-  background: linear-gradient(
-    135deg,
-    var(--back-color) 0%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
 
-  &:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-  }
-
-  &.danger {
-    border-color: rgba(220, 53, 69, 0.3);
-    background: linear-gradient(
-      135deg,
-      var(--back-color) 0%,
-      rgba(220, 53, 69, 0.05) 100%
-    );
+  &--danger {
+    border-color: rgba(239, 68, 68, 0.2);
   }
 }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-
-  i {
-    font-size: 1.5rem;
-    margin-right: 1rem;
-    color: var(--pay-color);
-  }
+.sc-header {
+  margin-bottom: 16px;
 
   h3 {
-    margin: 0;
-    color: var(--title-color);
-    font-size: 1.3rem;
-    font-weight: 500;
-  }
-}
-
-.danger .card-header i {
-  color: #dc3545;
-}
-
-.setting-card p {
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 1rem;
-}
-
-.form-section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.form-group {
-  margin-bottom: 1rem;
-
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-    font-weight: 500;
-  }
-
-  input,
-  select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-  }
-  select {
-    background-color: var(--back-color);
-    color: var(--text-color);
-
-    option {
-      background-color: var(--back-color);
-      color: var(--text-color);
-      padding: 0.5rem;
-
-      &:hover {
-        background-color: var(--pay-color);
-        color: white;
-      }
-
-      &:checked,
-      &:focus {
-        background-color: var(--pay-color);
-        color: white;
-      }
-    }
-  }
-}
-
-.error-message {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  display: block;
-}
-
-.warning-box {
-  background-color: rgba(220, 53, 69, 0.1);
-  border: 1px solid rgba(220, 53, 69, 0.3);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-
-  i {
-    color: #dc3545;
-    font-size: 1.2rem;
-    margin-right: 0.75rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 4px;
   }
 
   p {
-    margin: 0;
-    color: #dc3545;
-    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
   }
 }
 
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+.sc-form {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.danger-banner {
+  padding: 12px 16px;
+  background: var(--danger-subtle);
+  color: var(--danger);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  margin-bottom: 20px;
   font-weight: 500;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-block;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
 }

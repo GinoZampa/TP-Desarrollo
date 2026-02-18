@@ -1,31 +1,43 @@
-.edit-price-container {
-  max-width: 400px;
+.admin-page {
+  max-width: var(--container-max);
   margin: 0 auto;
-  padding: 1rem;
+  padding: 40px var(--container-padding);
+  display: flex;
+  justify-content: center;
+  min-height: calc(100vh - var(--nav-height));
+  align-items: flex-start;
+  padding-top: 80px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--text-secondary);
+}
+
+.action-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background-color: var(--back-color);
-  margin-top: 20px;
+  border-radius: var(--radius-lg);
+  padding: 32px;
+}
+
+.action-header {
+  margin-bottom: 24px;
+
+  h2 {
+    font-size: 1.3rem;
+    margin-bottom: 4px;
+  }
+
+  .product-name {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
 }
 
 .form-group {
-  margin-bottom: 1rem;
-}
-
-.subtitle {
-  text-align: center;
-  color: var(--text-color);
-}
-
-.form-control {
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
+  margin-bottom: 20px;
 }
