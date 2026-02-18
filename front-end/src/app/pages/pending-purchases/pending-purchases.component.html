@@ -15,14 +15,16 @@
         <div class="order-card" *ngFor="let purchase of pendingPurchases">
           <div class="oc-top">
             <span class="oc-id">#{{ purchase.idPu }}</span>
-            <span class="oc-date">{{ purchase.datePu | date:'shortDate' }}</span>
+            <span class="oc-date">{{ purchase.datePu | date:'dd/MM/yy' }}</span>
           </div>
           <div class="oc-body">
             <div class="oc-customer">{{ purchase.user.nameUs }} {{ purchase.user.lastNameUs }}</div>
-            <div class="oc-addr">{{ purchase.user.addressUs }}, {{ purchase.user.locality.nameLo }}</div>
+            <div class="oc-addr">{{ purchase.user.addressUs }}, {{ purchase.user.municipalityName }}, {{
+              purchase.user.provinceName }} · Phone: {{purchase.user.phoneUs}}</div>
             <div class="oc-products" *ngIf="purchase.purchaseClothe && purchase.purchaseClothe.length > 0">
               <div class="oc-prod" *ngFor="let item of purchase.purchaseClothe">
-                {{ item.clothe.nameCl }} · {{ item.clothe.size }} · x{{ item.quantity }} · {{ item.unitPrice | currency
+                ID: {{item.clothe.idCl}} · {{ item.clothe.nameCl }} · {{ item.clothe.size }} · x{{ item.quantity }} · {{
+                item.unitPrice | currency
                 }}
               </div>
             </div>
@@ -48,14 +50,17 @@
         <div class="order-card" *ngFor="let purchase of sentPurchases">
           <div class="oc-top">
             <span class="oc-id">#{{ purchase.idPu }}</span>
-            <span class="oc-date">{{ purchase.datePu | date:'shortDate' }}</span>
+            <span class="oc-date">{{ purchase.datePu | date:'dd/MM/yy' }}</span>
           </div>
           <div class="oc-body">
             <div class="oc-customer">{{ purchase.user.nameUs }} {{ purchase.user.lastNameUs }}</div>
-            <div class="oc-addr">{{ purchase.user.addressUs }}, {{ purchase.user.locality.nameLo }}</div>
+            <div class="oc-addr">{{ purchase.user.addressUs }}, {{ purchase.user.municipalityName }}, {{
+              purchase.user.provinceName }} · Phone:
+              {{purchase.user.phoneUs}}</div>
             <div class="oc-products" *ngIf="purchase.purchaseClothe && purchase.purchaseClothe.length > 0">
               <div class="oc-prod" *ngFor="let item of purchase.purchaseClothe">
-                {{ item.clothe.nameCl }} · {{ item.clothe.size }} · x{{ item.quantity }} · {{ item.unitPrice | currency
+                ID: {{item.clothe.idCl}} · {{ item.clothe.nameCl }} · {{ item.clothe.size }} · x{{ item.quantity }} · {{
+                item.unitPrice | currency
                 }}
               </div>
             </div>

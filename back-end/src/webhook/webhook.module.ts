@@ -4,6 +4,7 @@ import { ClothesModule } from 'src/clothes/clothes.module';
 import { PurchasesModule } from 'src/purchases/purchases.module';
 import { ShipmentsModule } from 'src/shipments/shipments.module';
 import { PurchaseClotheModule } from 'src/purchase-clothe/purchase-clothe.module';
+import { ShippingCostsModule } from 'src/shipping-costs/shipping-costs.module';
 
 @Module({
     imports: [
@@ -11,6 +12,7 @@ import { PurchaseClotheModule } from 'src/purchase-clothe/purchase-clothe.module
         PurchasesModule,
         ClothesModule,
         PurchaseClotheModule,
+        ShippingCostsModule,
     ],
     controllers: [WebhookController],
 })

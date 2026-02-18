@@ -12,6 +12,7 @@ import { DataSource } from 'typeorm';
 import { Purchase } from '../purchases/entities/purchase.entity';
 import { Clothe } from '../clothes/entities/clothe.entity';
 import { PurchaseClothe } from 'src/purchase-clothe/entities/purchase-clothe.entity';
+import { ShippingCost } from 'src/shipping-costs/entities/shipping-cost.entity';
 
 @ApiTags('Webhook')
 @Controller('webhook')
@@ -61,10 +62,16 @@ export class WebhookController {
                     await this.dataSource.transaction(async (manager) => {
                         const { total_amount, user, products } = data.metadata;
 
+                        const shippingCost = await manager.findOne(ShippingCost, { where: { provinceId: user.provinceId } });
+
+                        if (!shippingCost) {
+                            throw new BadRequestException(`Costo de envío no encontrado para la provincia ${user.provinceId}`);
+                        }
+
                         // 1. Create Shipment
                         const shipment = manager.create(Shipment, {
                             dateSh: new Date(),
-                            idLocality: user.id_lo,
+                            shippingCost: shippingCost,
                             status: STATUS.PENDING,
                         });
                         const savedShipment = await manager.save(shipment);

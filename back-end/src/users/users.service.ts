@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import { Locality } from 'src/localities/entities/locality.entity';
 import { Purchase } from 'src/purchases/entities/purchase.entity';
 import { Shipment } from 'src/shipments/entities/shipment.entity';
 import * as bcryptjs from 'bcryptjs'
@@ -14,8 +13,6 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(Locality)
-    private localitiesRepository: Repository<Locality>,
     @InjectRepository(Purchase)
     private purchaseRepository: Repository<Purchase>,
     @InjectRepository(Shipment)
@@ -23,13 +20,7 @@ export class UsersService {
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const locality = await this.localitiesRepository.findOne({ where: { idLo: createUserDto.idLo } });
-
-    if (!locality) {
-      throw new BadRequestException('Localidad no encontrada');
-    }
-
-    const user = this.userRepository.create({ ...createUserDto, locality: locality });
+    const user = this.userRepository.create(createUserDto);
     return await this.userRepository.save(user);
   }
 
@@ -50,7 +41,6 @@ export class UsersService {
   async findAllWithStats(): Promise<any[]> {
     const users = await this.userRepository.find({
       where: { isActive: true },
-      relations: ['locality'],
     });
 
     const usersWithStats = await Promise.all(
@@ -86,30 +76,11 @@ export class UsersService {
   }
 
   findOne(idUs: number): Promise<User> {
-    return this.userRepository.findOne({ where: { idUs: idUs, isActive: true }, relations: ['locality'] });
+    return this.userRepository.findOne({ where: { idUs: idUs, isActive: true } });
   }
 
   async update(idUs: number, updateUserDto: UpdateUserDto): Promise<User> {
-    if (updateUserDto.idLo) {
-      const locality = await this.localitiesRepository.findOne({
-        where: { idLo: updateUserDto.idLo }
-      });
-
-      const { idLo, ...otherData } = updateUserDto;
-
-      await this.userRepository.update(idUs, otherData);
-
-      await this.userRepository
-        .createQueryBuilder()
-        .update(User)
-        .set({ locality: locality })
-        .where("idUs = :idUs", { idUs })
-        .execute();
-
-    } else {
-      await this.userRepository.update(idUs, updateUserDto);
-    }
-
+    await this.userRepository.update(idUs, updateUserDto);
     return this.findOne(idUs);
   }
 

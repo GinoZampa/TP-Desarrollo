@@ -76,12 +76,17 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Locality</label>
-            <select formControlName="idLo">
-              <option value="">Select a locality</option>
-              <option *ngFor="let locality of localities" [value]="locality.idLo">
-                {{ locality.nameLo }} (CP: {{ locality.postalCode }})
-              </option>
+            <label>Province</label>
+            <select formControlName="province">
+              <option value="">Select a province</option>
+              <option *ngFor="let p of provinces" [value]="p.id">{{ p.nombre }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Municipality</label>
+            <select formControlName="municipality">
+              <option value="">Select a municipality</option>
+              <option *ngFor="let m of municipalities" [value]="m.id">{{ m.nombre }}</option>
             </select>
           </div>
           <button type="submit" class="btn-accent" [disabled]="profileForm.invalid">Save Changes</button>

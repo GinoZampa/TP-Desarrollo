@@ -3,7 +3,7 @@ import { Component, Inject, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { LocalityService } from '../../services/locality.service';
+import { GeoRefService, GeoRefProvince, GeoRefMunicipality } from '../../services/georef.service';
 import {
   FormBuilder,
   FormGroup,
@@ -11,7 +11,6 @@ import {
   Validators,
 } from '@angular/forms';
 import Swal from 'sweetalert2';
-import { Locality } from '../../models/localities.model';
 
 @Component({
   selector: 'app-sign-up',
@@ -22,14 +21,15 @@ import { Locality } from '../../models/localities.model';
 })
 export class SignUpComponent implements OnInit {
   loginForm!: FormGroup;
-  localities: Locality[] = [];
+  provinces: GeoRefProvince[] = [];
+  municipalities: GeoRefMunicipality[] = [];
 
   private destroyRef = inject(DestroyRef);
+  private geoRefService = inject(GeoRefService);
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private localityService: LocalityService,
     @Inject(Router) private router: Router
   ) {
     this.loginForm = this.formBuilder.group({
@@ -39,24 +39,41 @@ export class SignUpComponent implements OnInit {
       passwordUs: ['', [Validators.required, Validators.minLength(6)]],
       phoneUs: ['', [Validators.required, Validators.minLength(9)]],
       addressUs: ['', [Validators.required]],
-      idLo: ['', Validators.required],
+      province: ['', Validators.required],
+      municipality: ['', Validators.required],
     });
   }
 
   ngOnInit() {
-    this.loadLocalities();
+    this.loadProvinces();
+
+    // Listen to province changes
+    this.loginForm.get('province')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(provinceId => {
+        this.municipalities = [];
+        this.loginForm.get('municipality')?.setValue('');
+        if (provinceId) {
+          this.loadMunicipalities(provinceId);
+        }
+      });
   }
 
-  loadLocalities() {
-    this.localityService.getActiveLocalities()
+  loadProvinces() {
+    this.geoRefService.getProvinces()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (data: Locality[]) => {
-          this.localities = data;
-        },
-        error: (error) => {
-          console.error('Error loading localities', error);
-        }
+        next: (data) => this.provinces = data,
+        error: (err) => console.error('Error loading provinces', err)
+      });
+  }
+
+  loadMunicipalities(provinceId: string) {
+    this.geoRefService.getMunicipalities(provinceId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => this.municipalities = data,
+        error: (err) => console.error('Error loading municipalities', err)
       });
   }
 
@@ -68,8 +85,13 @@ export class SignUpComponent implements OnInit {
       passwordUs,
       phoneUs,
       addressUs,
-      idLo,
+      province,
+      municipality
     } = this.loginForm.value;
+
+    const selectedProvince = this.provinces.find(p => p.id === province);
+    const selectedMunicipality = this.municipalities.find(m => m.id === municipality);
+
     if (this.loginForm.invalid) {
       Swal.fire({
         icon: 'error',
@@ -86,7 +108,9 @@ export class SignUpComponent implements OnInit {
         passwordUs,
         phoneUs,
         addressUs,
-        idLo
+        province, // provinceId
+        selectedProvince?.nombre || '', // provinceName
+        selectedMunicipality?.nombre || '' // municipalityName
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response) => {

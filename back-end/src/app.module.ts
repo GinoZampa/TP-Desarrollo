@@ -6,13 +6,11 @@ import { AppService } from './app.service';
 import { PurchasesModule } from './purchases/purchases.module';
 import { ClothesModule } from './clothes/clothes.module';
 import { ShipmentsModule } from './shipments/shipments.module';
-import { LocalitiesModule } from './localities/localities.module';
 import { UsersModule } from './users/users.module';
 import { Clothe } from './clothes/entities/clothe.entity';
 import { Purchase } from './purchases/entities/purchase.entity';
 import { Shipment } from './shipments/entities/shipment.entity';
 import { User } from './users/entities/user.entity';
-import { Locality } from './localities/entities/locality.entity';
 import { AuthModule } from './auth/auth.module';
 import { PaymentModule } from './payment/payment.module';
 import { WebhookController } from './webhook/webhook.controller';
@@ -20,6 +18,8 @@ import { WebhookModule } from './webhook/webhook.module';
 import { PurchaseClotheController } from './purchase-clothe/purchase-clothe.controller';
 import { PurchaseClotheModule } from './purchase-clothe/purchase-clothe.module';
 import { PurchaseClothe } from './purchase-clothe/entities/purchase-clothe.entity';
+import { ShippingCostsModule } from './shipping-costs/shipping-costs.module';
+import { ShippingCost } from './shipping-costs/entities/shipping-cost.entity';
 
 @Module({
   imports: [
@@ -42,8 +42,8 @@ import { PurchaseClothe } from './purchase-clothe/entities/purchase-clothe.entit
           Purchase,
           Shipment,
           User,
-          Locality,
           PurchaseClothe,
+          ShippingCost,
         ],
       }),
       inject: [ConfigService],
@@ -51,12 +51,12 @@ import { PurchaseClothe } from './purchase-clothe/entities/purchase-clothe.entit
     PurchasesModule,
     ClothesModule,
     ShipmentsModule,
-    LocalitiesModule,
     UsersModule,
     AuthModule,
     PaymentModule,
     WebhookModule,
     PurchaseClotheModule,
+    ShippingCostsModule,
   ],
   controllers: [AppController, WebhookController, PurchaseClotheController],
   providers: [AppService],

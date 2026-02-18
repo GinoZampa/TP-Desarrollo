@@ -33,6 +33,12 @@ export class CreateUserDto {
 
   /*locality: string;
   province: string;estos los deberia elegir, el usuario de una lista pq asumimos que ya esta cargado*/
-  @IsInt()
-  idLo: number;
+  @IsString()
+  provinceId: string;
+
+  @IsString()
+  provinceName: string;
+
+  @IsString()
+  municipalityName: string;
 }

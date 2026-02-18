@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import { Rol } from '../../common/enums/rol.enum';
 import { Purchase } from 'src/purchases/entities/purchase.entity';
-import { Locality } from 'src/localities/entities/locality.entity';
 
 @Entity()
 export class User {
@@ -36,9 +35,14 @@ export class User {
   @Column({ type: 'enum', default: Rol.USER, enum: Rol })
   rol: Rol; //tendria que haber sido role, pero ya avanzamos bastante y no quiero cambiarlo
 
-  @ManyToOne(() => Locality, { eager: true })
-  @JoinColumn({ name: 'idLo' })
-  locality: Locality;
+  @Column({ type: 'varchar', length: 5, nullable: false })
+  provinceId: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: false })
+  provinceName: string;
+
+  @Column({ type: 'varchar', length: 200, nullable: false })
+  municipalityName: string;
 
   @OneToMany(() => Purchase, (purchase) => purchase.user)
   purchases: Purchase[];

@@ -3,14 +3,21 @@ import { ConfigService } from '@nestjs/config';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { User } from 'src/users/entities/user.entity';
 import { PaymentItemDto } from './dto/payment-item.dto';
+import { ShippingCostsService } from 'src/shipping-costs/shipping-costs.service';
 
 @Injectable()
 export class PaymentService {
 
-  constructor(private readonly configService: ConfigService) { }
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly shippingCostsService: ShippingCostsService,
+  ) { }
 
   async createPayment(items: PaymentItemDto[], user: User) {
     try {
+      const shippingCost = await this.shippingCostsService.findByProvinceId(user.provinceId);
+      const cost = shippingCost ? shippingCost.cost : 0;
+
       const mercadopago = new MercadoPagoConfig({
         accessToken: this.configService.get('MP_ACCESS_TOKEN'),
       });
@@ -25,10 +32,10 @@ export class PaymentService {
           })),
           {
             id: 'shipping',
-            title: `Envío a ${user.locality.nameLo}`,
+            title: `Envío a ${user.provinceName}`,
             quantity: 1,
             currency_id: 'ARS',
-            unit_price: user.locality.cost,
+            unit_price: cost,
           }],
           back_urls: {
             success: this.configService.get('back_url_success'),
@@ -40,8 +47,8 @@ export class PaymentService {
           metadata: {
             user: {
               id: user.idUs,
-              idLo: user.locality.idLo,
-              cost: user.locality.cost,
+              provinceId: user.provinceId,
+              cost: cost,
             },
             products: items.map(item => ({
               idCl: item.idCl,
@@ -49,7 +56,7 @@ export class PaymentService {
               price: item.price,
               quantity: item.quantity
             })),
-            totalAmount: items.reduce((total, item) => total + (item.price * item.quantity), user.locality.cost)
+            totalAmount: items.reduce((total, item) => total + (item.price * item.quantity), cost)
           }
         }
       });

@@ -1,6 +1,7 @@
 <div class="admin-page">
     <div class="page-header">
         <h1>Users</h1>
+        <div>Este componente está pensado para, en un futuro, incluir tableros de análisis de ventas y usuarios.</div>
         <span class="header-count">{{ users.length }} registered</span>
     </div>
 
@@ -35,7 +36,7 @@
                     <td>{{ user.emailUs }}</td>
                     <td>{{ user.phoneUs }}</td>
                     <td>{{ user.addressUs }}</td>
-                    <td>{{ user.locality.nameLo || '-' }}</td>
+                    <td>{{ user.municipalityName }}, {{ user.provinceName }}</td>
                     <td>
                         <span class="badge" [ngClass]="user.rol === 'admin' ? 'badge-accent' : 'badge-success'">
                             {{ user.rol }}

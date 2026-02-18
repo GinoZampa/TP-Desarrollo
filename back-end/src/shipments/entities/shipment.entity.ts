@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Purchase } from 'src/purchases/entities/purchase.entity';
-import { Locality } from 'src/localities/entities/locality.entity';
+import { ShippingCost } from 'src/shipping-costs/entities/shipping-cost.entity';
 
 export enum STATUS {
   PENDING = 'Pending',
@@ -22,11 +22,11 @@ export class Shipment {
     length: 50,
     default: STATUS.PENDING,
   })
-  status: STATUS; 
+  status: STATUS;
 
-  @ManyToOne(() => Locality, { eager: true })
-  @JoinColumn({ name: 'idLo' })
-  locality: Locality;
+  @ManyToOne(() => ShippingCost, { eager: true })
+  @JoinColumn({ name: 'shippingCostId' })
+  shippingCost: ShippingCost;
 
   @OneToMany(() => Purchase, (purchase) => purchase.shipment)
   purchases: Purchase[];

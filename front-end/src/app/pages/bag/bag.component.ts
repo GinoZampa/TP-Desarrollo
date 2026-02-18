@@ -8,7 +8,7 @@ import { User } from '../../models/users.model';
 import { Subscription } from 'rxjs';
 import { PaymentService } from '../../services/payment.service';
 import { Clothes } from '../../models/clothes.model';
-import { Locality } from '../../models/localities.model';
+import { ShippingCostsService } from '../../services/shipping-costs.service';
 
 @Component({
   selector: 'app-bag',
@@ -21,7 +21,7 @@ export class BagComponent implements OnInit {
   bagItems: Clothes[] = [];
   user: User | null = null;
   total: number = 0;
-  userLocality: Locality | null = null;
+  currentShippingCost: number = 0;
   isAuthenticated: boolean = false;
 
   private bagService = inject(BagService);
@@ -30,6 +30,7 @@ export class BagComponent implements OnInit {
   private cdRef = inject(ChangeDetectorRef);
   private paymentService = inject(PaymentService);
   private destroyRef = inject(DestroyRef);
+  private shippingCostsService = inject(ShippingCostsService);
 
   constructor() { }
 
@@ -38,6 +39,13 @@ export class BagComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(user => {
         this.user = user?.user || null;
+        if (this.user && this.user.provinceId) {
+          this.shippingCostsService.findAll().subscribe(costs => {
+            const costObj = costs.find(c => c.provinceId === this.user?.provinceId);
+            this.currentShippingCost = costObj ? costObj.cost : 0;
+            this.cdRef.markForCheck();
+          });
+        }
         this.cdRef.markForCheck();
       });
 
@@ -65,9 +73,9 @@ export class BagComponent implements OnInit {
 
   calculateTotalPrice(): number {
     const subtotal = this.calculateSubtotal();
-    const shippingCost = this.user?.locality?.cost || 0;
-    return subtotal + shippingCost;
+    return subtotal + (this.currentShippingCost || 0);
   }
+
 
   hasItemsInBag() {
     return this.bagItems.length > 0;

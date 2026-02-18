@@ -61,15 +61,27 @@
             </div>
 
             <div class="form-group">
-                <label for="idLo">Locality</label>
-                <select id="idLo" formControlName="idLo">
-                    <option value="" disabled selected>Select a locality</option>
-                    <option *ngFor="let locality of localities" [value]="locality.idLo">
-                        {{ locality.nameLo }} (CP: {{ locality.postalCode }})
+                <label for="province">Province</label>
+                <select id="province" formControlName="province">
+                    <option value="" disabled selected>Select a province</option>
+                    <option *ngFor="let prov of provinces" [value]="prov.id">
+                        {{ prov.nombre }}
                     </option>
                 </select>
-                @if (hasError('idLo', 'required')){
-                <span class="error-message">Select a locality</span>}
+                @if (hasError('province', 'required')){
+                <span class="error-message">Select a province</span>}
+            </div>
+
+            <div class="form-group">
+                <label for="municipality">Municipality</label>
+                <select id="municipality" formControlName="municipality">
+                    <option value="" disabled selected>Select a municipality</option>
+                    <option *ngFor="let muni of municipalities" [value]="muni.id">
+                        {{ muni.nombre }}
+                    </option>
+                </select>
+                @if (hasError('municipality', 'required')){
+                <span class="error-message">Select a municipality</span>}
             </div>
 
             <button type="submit" class="btn-accent auth-submit">Create Account</button>

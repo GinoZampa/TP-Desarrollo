@@ -5,26 +5,26 @@ import { adminGuard } from './guards/admin.guard';
 export const routes: Routes = [
     { path: '', loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) },
 
-    { 
+    {
         path: 'search/:desc',
-        loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) 
+        loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
     },
-    { 
+    {
         path: 'products/:id',
-        loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent) 
+        loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
     },
-    { 
+    {
         path: 'login',
-        loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent) 
+        loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
     },
-    { 
+    {
         path: 'sign-up',
-        loadComponent: () => import('./pages/sign-up/sign-up.component').then(m => m.SignUpComponent) 
+        loadComponent: () => import('./pages/sign-up/sign-up.component').then(m => m.SignUpComponent)
     },
 
-    { 
+    {
         path: 'bag',
-        loadComponent: () => import('./pages/bag/bag.component').then(m => m.BagComponent) 
+        loadComponent: () => import('./pages/bag/bag.component').then(m => m.BagComponent)
     },
 
     {
@@ -42,8 +42,8 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
         canActivate: [authGuard]
     },
-    { 
-        path: 'success', 
+    {
+        path: 'success',
         loadComponent: () => import('./pages/success/success.component').then(m => m.SuccessComponent)
     },
     {
@@ -62,8 +62,8 @@ export const routes: Routes = [
         canActivate: [adminGuard]
     },
     {
-        path: 'localities',
-        loadComponent: () => import('./pages/localities/localities.component').then(m => m.LocalitiesComponent),
+        path: 'shipping-costs',
+        loadComponent: () => import('./pages/shipping-costs/shipping-costs.component').then(m => m.ShippingCostsComponent),
         canActivate: [adminGuard]
     },
     {

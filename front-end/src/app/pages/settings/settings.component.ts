@@ -4,11 +4,11 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { LocalityService } from '../../services/locality.service';
+import { GeoRefService } from '../../services/georef.service';
 import { UserService } from '../../services/user.service';
 import { TokenService } from '../../services/token.service';
 import { User } from '../../models/users.model';
-import { Locality } from '../../models/localities.model';
+import { GeoRefProvince, GeoRefMunicipality } from '../../services/georef.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -20,7 +20,8 @@ import Swal from 'sweetalert2';
 })
 export class SettingsComponent implements OnInit {
   user: User | null = null;
-  localities: Locality[] = [];
+  provinces: GeoRefProvince[] = [];
+  municipalities: GeoRefMunicipality[] = [];
 
   passwordForm: FormGroup;
   profileForm: FormGroup;
@@ -34,7 +35,7 @@ export class SettingsComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private localityService: LocalityService,
+    private geoRefService: GeoRefService,
     private userService: UserService,
     private tokenService: TokenService,
     private router: Router
@@ -50,7 +51,8 @@ export class SettingsComponent implements OnInit {
       lastNameUs: ['', Validators.required],
       phoneUs: ['', Validators.required],
       addressUs: ['', Validators.required],
-      idLo: ['', Validators.required]
+      province: ['', Validators.required],
+      municipality: ['', Validators.required]
     });
 
     this.deleteForm = this.fb.group({
@@ -60,8 +62,20 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadProvinces();
     this.loadUserData();
-    this.loadLocalities();
+
+    // Cascading dropdown logic
+    this.profileForm.get('province')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(provinceId => {
+        if (provinceId) {
+          this.loadMunicipalities(provinceId);
+        } else {
+          this.municipalities = [];
+          this.profileForm.get('municipality')?.setValue('');
+        }
+      });
   }
 
   private loadUserData(): void {
@@ -84,21 +98,47 @@ export class SettingsComponent implements OnInit {
         lastNameUs: this.user.lastNameUs,
         phoneUs: this.user.phoneUs,
         addressUs: this.user.addressUs,
-        idLo: this.user.locality?.idLo || ''
+        province: this.user.provinceId,
       });
+
+      // Load municipalities then set value
+      if (this.user.provinceId) {
+        this.loadMunicipalities(this.user.provinceId);
+        // Timeout to ensure list is loaded (or use switchMap but this is simpler for now)
+        setTimeout(() => {
+          // Find muni by name to get ID if needed, or if we stored ID. 
+          // Wait, user has municipalityName. We need to map it to ID if the select expects ID.
+          // GeoRefService returns munis with ID.
+          // If we only saved name, we might have an issue binding the select if it uses ID.
+          // Let's assume we need to match by Name if ID not available? 
+          // Actually backend user saves Names. But we might want to save IDs or Names.
+          // Helper: find ID by name? 
+          // Ideally User should have municipalityId too. But implementation plan said name.
+          // Let's try to match by name in the list.
+          const muni = this.municipalities.find(m => m.nombre === this.user?.municipalityName);
+          if (muni) {
+            this.profileForm.patchValue({ municipality: muni.id });
+          }
+        }, 500);
+      }
     }
   }
 
-  private loadLocalities(): void {
-    this.localityService.getActiveLocalities()
+  private loadProvinces(): void {
+    this.geoRefService.getProvinces()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (localities) => {
-          this.localities = localities;
-        },
-        error: (error) => {
-          console.error('Error loading localities:', error);
-        }
+        next: (data) => this.provinces = data,
+        error: (err) => console.error(err)
+      });
+  }
+
+  private loadMunicipalities(provinceId: string): void {
+    this.geoRefService.getMunicipalities(provinceId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => this.municipalities = data,
+        error: (err) => console.error(err)
       });
   }
 

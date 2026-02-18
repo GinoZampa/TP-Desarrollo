@@ -1,4 +1,3 @@
-import { Locality } from "./localities.model";
 import { Purchase } from "./purchases.model";
 
 export interface User {
@@ -9,7 +8,9 @@ export interface User {
   phoneUs: string;
   addressUs: string;
   rol: 'admin' | 'user';
-  locality: Locality;
+  provinceId: string;
+  provinceName: string;
+  municipalityName: string;
   isActive: boolean;
   passwordUs?: string;
   purchases?: Purchase[];

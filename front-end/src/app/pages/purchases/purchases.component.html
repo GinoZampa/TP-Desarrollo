@@ -54,7 +54,8 @@
         <div class="pc-body">
           <div class="pc-customer">
             <strong>{{ purchase.user.nameUs | titlecase }} {{ purchase.user.lastNameUs | titlecase }}</strong>
-            <span class="pc-addr">{{ purchase.user.addressUs | titlecase }}, {{ purchase.user.locality.nameLo }}</span>
+            <span class="pc-addr">{{ purchase.user.addressUs | titlecase }}, {{ purchase.user.municipalityName }}, {{
+              purchase.user.provinceName }}</span>
           </div>
           <div class="pc-shipment">
             Shipment #{{ purchase.shipment.idSh }} ·

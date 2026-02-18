@@ -4,26 +4,26 @@ import { LessThan, Repository } from 'typeorm';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { Shipment, STATUS } from './entities/shipment.entity';
-import { Locality } from 'src/localities/entities/locality.entity';
+import { ShippingCost } from 'src/shipping-costs/entities/shipping-cost.entity';
 
 @Injectable()
 export class ShipmentsService {
   constructor(
     @InjectRepository(Shipment)
     private shipmentRepository: Repository<Shipment>,
-    @InjectRepository(Locality)
-    private localitiesRepository: Repository<Locality>,
+    @InjectRepository(ShippingCost)
+    private shippingCostsRepository: Repository<ShippingCost>,
   ) { }
 
   async create(createShipmentDto: CreateShipmentDto): Promise<Shipment> {
-    const locality = await this.localitiesRepository.findOne({ where: { idLo: createShipmentDto.idLocality } });
-    if (!locality) {
-      throw new Error('Locality not found');
+    const shippingCost = await this.shippingCostsRepository.findOne({ where: { provinceId: createShipmentDto.provinceId } });
+    if (!shippingCost) {
+      throw new Error('Shipping cost not found for province');
     }
 
     const shipment = this.shipmentRepository.create({
       dateSh: createShipmentDto.dateSh,
-      locality: locality,
+      shippingCost: shippingCost,
       status: createShipmentDto.status,
     });
     return this.shipmentRepository.save(shipment);

@@ -5,8 +5,8 @@ export class CreateShipmentDto {
   @IsDate()
   dateSh: Date;
 
-  @IsNumber()
-  idLocality: number;
+  @IsString()
+  provinceId: string;
 
   @IsOptional()
   @IsEnum(STATUS)

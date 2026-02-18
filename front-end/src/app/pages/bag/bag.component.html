@@ -49,9 +49,10 @@
                     <span>${{ calculateSubtotal() }}</span>
                 </div>
 
-                <div class="summary-line" *ngIf="isAuthenticated && user?.locality">
-                    <span>Shipping to {{ user?.addressUs }}, {{ user?.locality?.nameLo }}</span>
-                    <span>${{ user?.locality?.cost }}</span>
+                <div class="summary-line" *ngIf="isAuthenticated && user?.provinceId">
+                    <span>Shipping to {{ user?.addressUs }}, {{ user?.municipalityName }}, {{ user?.provinceName
+                        }}</span>
+                    <span>${{ currentShippingCost }}</span>
                 </div>
 
                 <div class="summary-line" *ngIf="!isAuthenticated">

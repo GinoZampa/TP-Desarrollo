@@ -36,7 +36,9 @@ export class AuthService {
     passwordUs: string,
     phoneUs: string,
     addressUs: string,
-    idLo: number
+    provinceId: string,
+    provinceName: string,
+    municipalityName: string
   ): Observable<any> {
     return this.http
       .post(this.urlRegister, {
@@ -46,7 +48,9 @@ export class AuthService {
         passwordUs,
         phoneUs,
         addressUs,
-        idLo: Number(idLo),
+        provinceId,
+        provinceName,
+        municipalityName,
       })
   }
 

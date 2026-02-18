@@ -79,11 +79,25 @@ export class RegisterDto {
   addressUs: string;
 
   @ApiProperty({
-    example: 1,
-    description: 'Locality ID (foreign key)'
+    example: '06',
+    description: 'Province ID from GeoRef API'
   })
-  @IsInt()
-  idLo: number;
+  @IsString()
+  provinceId: string;
+
+  @ApiProperty({
+    example: 'Buenos Aires',
+    description: 'Province Name'
+  })
+  @IsString()
+  provinceName: string;
+
+  @ApiProperty({
+    example: 'La Plata',
+    description: 'Municipality Name'
+  })
+  @IsString()
+  municipalityName: string;
 
   //rol: Rol;
 }
