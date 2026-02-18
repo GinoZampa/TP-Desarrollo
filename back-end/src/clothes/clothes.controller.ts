@@ -109,7 +109,7 @@ export class ClothesController {
   @ApiParam({ name: 'idCl', description: 'Clothing item ID' })
   @ApiResponse({ status: 200, description: 'Clothing item deactivated' })
   async deactivateProduct(@Param('idCl') idCl: number) {
-    return await this.clothesService.deactivateProduct(idCl);
+    await this.clothesService.deactivateProduct(idCl);
   }
 
 }

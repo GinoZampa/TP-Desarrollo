@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Between, ILike, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateClotheDto } from './dto/create-clothe.dto';
 import { UpdateClotheDto } from './dto/update-clothe.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -19,9 +19,23 @@ export class ClothesService {
   }
 
   async findAll(paginationDto: PaginationDto = {}): Promise<{ data: Clothe[]; total: number }> {
-    const { limit = 10, offset = 0 } = paginationDto;
+    const { limit = 12, offset = 0, typeCl, size, minPrice, maxPrice } = paginationDto;
+
+    const where: any = { isActive: true };
+
+    if (typeCl) where.typeCl = typeCl;
+    if (size) where.size = size;
+
+    if (minPrice && maxPrice) {
+      where.price = Between(minPrice, maxPrice);
+    } else if (minPrice) {
+      where.price = MoreThanOrEqual(minPrice);
+    } else if (maxPrice) {
+      where.price = LessThanOrEqual(maxPrice);
+    }
+
     const [data, total] = await this.clotheRepository.findAndCount({
-      where: { isActive: true },
+      where,
       take: limit,
       skip: offset,
     });
@@ -70,9 +84,8 @@ export class ClothesService {
     });
   }
 
-  async deactivateProduct(idCl: number): Promise<Clothe> {
+  async deactivateProduct(idCl: number): Promise<void> {
     await this.clotheRepository.update(idCl, { isActive: false });
-    return this.findOne(idCl);
   }
 
 }

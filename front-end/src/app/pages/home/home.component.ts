@@ -67,22 +67,23 @@ export class HomeComponent implements OnInit {
         this.totalProducts = products.length;
         this.totalPages = 1;
       });
-    } else if (this.hasActiveFilters()) {
-      this.clothesService.getProducts(1000, 0).subscribe((response) => {
-        this.products = response.data;
-        this.totalProducts = response.total;
-        this.totalPages = 1;
-        this.applyFilters();
-      });
-    } else {
-      const offset = (this.currentPage - 1) * this.pageSize;
-      this.clothesService.getProducts(this.pageSize, offset).subscribe((response) => {
-        this.products = response.data;
-        this.totalProducts = response.total;
-        this.totalPages = Math.ceil(response.total / this.pageSize);
-        this.filteredProducts = response.data;
-      });
+      return;
     }
+
+    const offset = (this.currentPage - 1) * this.pageSize;
+    const filters = {
+      typeCl: this.filterType || undefined,
+      size: this.filterSize || undefined,
+      minPrice: this.filterPriceMin,
+      maxPrice: this.filterPriceMax,
+    };
+
+    this.clothesService.getProducts(this.pageSize, offset, filters).subscribe((response) => {
+      this.products = response.data;
+      this.filteredProducts = response.data;
+      this.totalProducts = response.total;
+      this.totalPages = Math.ceil(response.total / this.pageSize);
+    });
   }
 
   navegate(route: string, id: number): void {
@@ -93,41 +94,9 @@ export class HomeComponent implements OnInit {
     this.showFilters = !this.showFilters;
   }
 
-  hasActiveFilters(): boolean {
-    return !!(this.filterType || this.filterSize ||
-      (this.filterPriceMin !== null && this.filterPriceMin > 0) ||
-      (this.filterPriceMax !== null && this.filterPriceMax > 0));
-  }
-
   applyFilters(): void {
-    if (!this.hasActiveFilters()) {
-      this.currentPage = 1;
-      this.loadProducts();
-      return;
-    }
-
-    if (this.totalPages > 1) {
-      this.currentPage = 1;
-      this.loadProducts();
-      return;
-    }
-
-    let result = [...this.products];
-
-    if (this.filterType) {
-      result = result.filter(p => p.typeCl === this.filterType);
-    }
-    if (this.filterSize) {
-      result = result.filter(p => p.size === this.filterSize);
-    }
-    if (this.filterPriceMin !== null && this.filterPriceMin > 0) {
-      result = result.filter(p => p.price >= this.filterPriceMin!);
-    }
-    if (this.filterPriceMax !== null && this.filterPriceMax > 0) {
-      result = result.filter(p => p.price <= this.filterPriceMax!);
-    }
-
-    this.filteredProducts = result;
+    this.currentPage = 1;
+    this.loadProducts();
   }
 
   clearFilters(): void {
