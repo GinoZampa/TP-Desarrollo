@@ -49,7 +49,7 @@
               {{purchase.user.locality.nameLo}}</p>
             <p>Products:</p>
             <div *ngFor="let product of purchase.products">
-              ID: {{product.clothe?.idCl}} - {{ product.clothe?.nameCl }} - Quantity: {{product.quantity}} - {{
+              ID: {{product.clothe.idCl}} - {{ product.clothe.nameCl }} - Quantity: {{product.quantity}} - {{
               product.unitPrice | currency }}
             </div>
           </div>

@@ -32,14 +32,6 @@
             @if (hasError('passwordUs', 'minlength')){
             <span class="error-message">Password is too short</span>}
 
-            <label for="dni">DNI</label>
-            <input type="text" id="dni" name="dni" placeholder="12345678" autocomplete="off" formControlName="dni"
-                ngClass="{is-invalid: hasError('dni', 'required') || hasError('dni', 'minlength')}">
-            @if (hasError('dni', 'required')){
-            <span class="error-message">DNI is required</span>}
-            @if (hasError('dni', 'minlength')){
-            <span class="error-message">DNI is too short</span>}
-
             <label for="phoneUs">Phone</label>
             <input type="text" id="phoneUs" name="phoneUs" placeholder="12345678" autocomplete="off"
                 formControlName="phoneUs"

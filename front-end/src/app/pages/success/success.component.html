@@ -21,14 +21,14 @@
   <div class="purchase-item">
     <div class="purchase-top">
       <div class="purchase-id">
-        <strong>Purchase ID: #{{ purchase?.idPu }}</strong>
+        <strong>Purchase ID: #{{ purchase.idPu }}</strong>
       </div>
       <div class="purchase-meta">
         <span class="date">
-          {{ purchase?.datePu | date:'dd/MM/yyyy' }}
+          {{ purchase.datePu | date:'dd/MM/yyyy' }}
         </span>
         <span class="time">
-          {{ purchase?.datePu | date:'HH:mm' }}
+          {{ purchase.datePu | date:'HH:mm' }}
         </span>
       </div>
     </div>
@@ -38,19 +38,19 @@
         <div class="customer-info">
           <h4>Customer Information</h4>
           <p class="customer-name">
-            <strong>{{ purchase?.user.nameUs | titlecase }} {{ purchase?.user.lastNameUs | titlecase }}</strong>
+            <strong>{{ purchase.user.nameUs | titlecase }} {{ purchase.user.lastNameUs | titlecase }}</strong>
           </p>
           <p class="address">
-            {{ purchase?.user.addressUs | titlecase }}, {{ purchase?.user.locality.nameLo }}
+            {{ purchase.user.addressUs | titlecase }}, {{ purchase.user.locality.nameLo }}
           </p>
         </div>
 
         <div class="shipment-info">
           <h4> Shipment Information</h4>
           <p class="shipment-details">
-            <span class="shipment-id">Shipment ID: #{{ purchase?.shipment.idSh }}</span>
-            <span class="shipment-status status-{{ purchase?.shipment.status?.toLowerCase() }}">
-              {{ purchase?.shipment.status }}
+            <span class="shipment-id">Shipment ID: #{{ purchase.shipment.idSh }}</span>
+            <span class="shipment-status status-{{ purchase.shipment.status.toLowerCase() }}">
+              {{ purchase.shipment.status }}
             </span>
           </p>
         </div>
@@ -80,7 +80,7 @@
       <div class="right">
         <div class="amount-container">
           <div class="total-label">Total Paid</div>
-          <div class="amount">{{ purchase?.amount | currency }}</div>
+          <div class="amount">{{ purchase.amount | currency }}</div>
         </div>
       </div>
     </div>

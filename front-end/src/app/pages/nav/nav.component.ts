@@ -8,6 +8,8 @@ import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { ClothesService } from '../../services/clothes.service';
 import { FormsModule } from '@angular/forms';
+import { Clothe } from '../../models/clothes.model';
+import { User } from '../../models/users.model';
 
 @Component({
   selector: 'app-nav',
@@ -18,11 +20,11 @@ import { FormsModule } from '@angular/forms';
 })
 export class NavComponent implements OnInit {
   isAuthenticated = false;
-  currentUser: any = null;
+  currentUser: User | null = null;
   userRole: string | null = null;
   searchTerm: string = '';
-  searchResults: any[] = [];
-  searchTimeout: any;
+  searchResults: Clothe[] = [];
+  searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
   private _bagService = inject(BagService);
   private _router = inject(Router);
@@ -43,7 +45,7 @@ export class NavComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(
         (user) => {
-          this.currentUser = user?.user;
+          this.currentUser = user?.user ?? null;
           this.userRole = user?.user.rol || null;
         }
       );
@@ -82,7 +84,7 @@ export class NavComponent implements OnInit {
       return;
     }
     if (term.length > 2) {
-      clearTimeout(this.searchTimeout);
+      if (this.searchTimeout) clearTimeout(this.searchTimeout);
       this.searchTimeout = setTimeout(() => {
         this.clothesService.searchProducts(term)
           .pipe(takeUntilDestroyed(this.destroyRef))

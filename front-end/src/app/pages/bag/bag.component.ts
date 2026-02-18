@@ -7,6 +7,8 @@ import { TokenService } from '../../services/token.service';
 import { User } from '../../models/users.model';
 import { Subscription } from 'rxjs';
 import { PaymentService } from '../../services/payment.service';
+import { Clothes } from '../../models/clothes.model';
+import { Locality } from '../../models/localities.model';
 
 @Component({
   selector: 'app-bag',
@@ -16,10 +18,10 @@ import { PaymentService } from '../../services/payment.service';
   styleUrl: './bag.component.scss',
 })
 export class BagComponent implements OnInit {
-  bagItems: any[] = [];
+  bagItems: Clothes[] = [];
   user: User | null = null;
   total: number = 0;
-  userLocality: any | null = null;
+  userLocality: Locality | null = null;
   isAuthenticated: boolean = false;
 
   private bagService = inject(BagService);

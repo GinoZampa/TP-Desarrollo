@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import Swal from 'sweetalert2';
+import { Clothes } from '../models/clothes.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BagService {
-  private bagItems: any[] = [];
+  private bagItems: Clothes[] = [];
 
   constructor() {
     if (this.isLocalStorageAvailable()) {
@@ -30,7 +31,7 @@ export class BagService {
     }
   }
 
-  addToBag(product: any) {
+  addToBag(product: Clothes) {
     const existingProduct = this.bagItems.find(
       (clothes) => clothes.idCl === product.idCl
     );
@@ -110,7 +111,7 @@ export class BagService {
     }
   }
 
-  getBagItems(): any[] {
+  getBagItems(): Clothes[] {
     return this.bagItems;
   }
 

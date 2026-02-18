@@ -4,6 +4,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PurchaseService } from '../../services/purchase.service';
 import { TokenService } from '../../services/token.service';
 import { User } from '../../models/users.model';
+import { Purchase } from '../../models/purchases.model';
+import { PurchaseClothe } from '../../models/purchase-clothe.model';
 import { firstValueFrom, Subscription } from 'rxjs';
 
 @Component({
@@ -22,17 +24,17 @@ export class UserPurchasesComponent implements OnInit {
     private cdRef: ChangeDetectorRef
   ) { }
 
-  purchases: any[] = [];
+  purchases: (Purchase & { products: PurchaseClothe[] })[] = [];
   isLoading = true;
-  user!: User;
-  products: any[] = [];
+  user: User | null = null;
+  products: PurchaseClothe[] = [];
   isDropdownOpen = false;
 
   ngOnInit(): void {
     this.tokenService.currentUser$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(user => {
-        this.user = user?.user || null;
+        this.user = user?.user ?? null;
         this.cdRef.markForCheck();
       });
 

@@ -5,7 +5,7 @@
       <div class="title-wrap">
         <h2 *ngIf="purchases.length !== 0">
           Purchases made by
-          <span class="user-name">{{ user.lastNameUs | titlecase }}, {{ user.nameUs | titlecase }}</span>
+          <span class="user-name">{{ user?.lastNameUs | titlecase }}, {{ user?.nameUs | titlecase }}</span>
           <span class="badge">{{ purchases.length }}</span>
         </h2>
         <div *ngIf="purchases.length === 0" class="empty-purchases">
@@ -43,7 +43,7 @@
         <div class="purchase-id">Purchase: <strong>#{{ purchase.idPu }}</strong></div>
         <div class="purchase-meta">
           <span class="date">{{ purchase.datePu | date:'mediumDate' }}</span>
-          <span class="shipment">Shipment: {{ purchase.shipment?.idSh }} ({{ purchase.shipment?.status }})</span>
+          <span class="shipment">Shipment: {{ purchase.shipment.idSh }} ({{ purchase.shipment.status }})</span>
         </div>
       </div>
 
@@ -54,11 +54,11 @@
             <div *ngFor="let product of purchase.products" class="product-item">
               <div class="product-left">
                 <div class="product-thumb">
-                  <img *ngIf="product.clothe?.image" [src]="product.clothe?.image" alt="{{product.clothe?.nameCl}}">
+                  <img *ngIf="product.clothe.image" [src]="product.clothe.image" alt="{{product.clothe.nameCl}}">
                 </div>
                 <div class="product-info">
-                  <div class="p-name">{{ product.clothe?.nameCl }}</div>
-                  <div class="p-attr">Size: {{ product.clothe?.size }} • Quantity: {{ product.quantity }}</div>
+                  <div class="p-name">{{ product.clothe.nameCl }}</div>
+                  <div class="p-attr">Size: {{ product.clothe.size }} • Quantity: {{ product.quantity }}</div>
                 </div>
               </div>
 

@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { LocalityService } from '../../services/locality.service';
 import { UserService } from '../../services/user.service';
 import { TokenService } from '../../services/token.service';
 import { User } from '../../models/users.model';
+import { Locality } from '../../models/localities.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -19,7 +20,7 @@ import Swal from 'sweetalert2';
 })
 export class SettingsComponent implements OnInit {
   user: User | null = null;
-  localities: any[] = [];
+  localities: Locality[] = [];
 
   passwordForm: FormGroup;
   profileForm: FormGroup;
@@ -101,7 +102,7 @@ export class SettingsComponent implements OnInit {
       });
   }
 
-  private passwordMatchValidator(control: AbstractControl): { [key: string]: any } | null {
+  private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const newPassword = control.get('newPassword');
     const confirmPassword = control.get('confirmPassword');
 
@@ -111,7 +112,7 @@ export class SettingsComponent implements OnInit {
     return null;
   }
 
-  private deleteConfirmValidator(control: AbstractControl): { [key: string]: any } | null {
+  private deleteConfirmValidator(control: AbstractControl): ValidationErrors | null {
     const confirmText = control.get('confirmText');
 
     if (confirmText && confirmText.value !== 'DELETE') {
@@ -163,7 +164,7 @@ export class SettingsComponent implements OnInit {
       this.userService.updateProfile(profileData)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (response: any) => {
+          next: (response) => {
             Swal.fire({
               icon: 'success',
               title: 'Profile updated successfully!',
@@ -172,7 +173,7 @@ export class SettingsComponent implements OnInit {
             this.showUpdateProfile = false;
             if (response.token) {
               this.tokenService.updateToken(response.token);
-              this.user = response.user;
+              this.user = response.user ?? null;
               this.populateProfileForm();
             }
           },

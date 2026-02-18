@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { UserService } from '../../services/user.service';
+import { UserWithStats } from '../../models/users.model';
 
 @Component({
     selector: 'app-admin-users',
@@ -12,7 +13,7 @@ import { UserService } from '../../services/user.service';
     styleUrl: './admin-users.component.scss'
 })
 export class AdminUsersComponent implements OnInit {
-    users: any[] = [];
+    users: UserWithStats[] = [];
     loading = true;
 
     private destroyRef = inject(DestroyRef);

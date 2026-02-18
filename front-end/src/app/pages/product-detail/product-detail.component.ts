@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ClothesService } from '../../services/clothes.service';
-import { Cloth } from '../../models/clothes.model';
+import { Clothe, Clothes } from '../../models/clothes.model';
 import { BagService } from '../../services/bag.service';
 import { TokenService } from '../../services/token.service';
 import { FormsModule } from '@angular/forms';
@@ -19,8 +19,8 @@ import { Subscription } from 'rxjs';
 export class ProductDetailComponent implements OnInit {
   userRole: string | null = null;
   loading = true;
-  public cloth?: Cloth;
-  @Input() product: any;
+  public cloth?: Clothe;
+  @Input() product?: Clothe;
   quantity: number = 1;
 
   private tokenService = inject(TokenService);
@@ -45,15 +45,15 @@ export class ProductDetailComponent implements OnInit {
       .subscribe((params) => {
         this.clothesService
           .getProductById(params['id'])
-          .subscribe((data: Cloth) => {
+          .subscribe((data: Clothe) => {
             this.cloth = data;
             this.loading = false;
           });
       });
   }
 
-  addToBag(product: any) {
-    const productToAdd = {
+  addToBag(product: Clothe) {
+    const productToAdd: Clothes = {
       ...product,
       quantity: this.quantity,
     };

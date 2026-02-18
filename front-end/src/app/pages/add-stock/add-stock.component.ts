@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Cloth } from '../../models/clothes.model';
+import { Clothe } from '../../models/clothes.model';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -20,7 +20,7 @@ import Swal from 'sweetalert2';
   styleUrl: './add-stock.component.scss',
 })
 export class AddStockComponent implements OnInit {
-  @Input() cloth!: Cloth;
+  @Input() cloth!: Clothe;
   editStockForm!: FormGroup;
   loading = true;
   private destroyRef = inject(DestroyRef);
@@ -38,7 +38,7 @@ export class AddStockComponent implements OnInit {
       .subscribe((params) => {
         this.clothesService
           .getProductById(params['id'])
-          .subscribe((data: Cloth) => {
+          .subscribe((data: Clothe) => {
             this.cloth = data;
             this.loading = false;
           });

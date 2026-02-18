@@ -37,7 +37,6 @@ export class SignUpComponent implements OnInit {
       lastNameUs: ['', [Validators.required]],
       emailUs: ['', [Validators.required, Validators.email]],
       passwordUs: ['', [Validators.required, Validators.minLength(6)]],
-      dni: ['', [Validators.required, Validators.minLength(8)]],
       phoneUs: ['', [Validators.required, Validators.minLength(9)]],
       addressUs: ['', [Validators.required]],
       idLo: ['', Validators.required],
@@ -55,7 +54,7 @@ export class SignUpComponent implements OnInit {
         next: (data: Locality[]) => {
           this.localities = data;
         },
-        error: (error: any) => {
+        error: (error) => {
           console.error('Error loading localities', error);
         }
       });
@@ -67,7 +66,6 @@ export class SignUpComponent implements OnInit {
       lastNameUs,
       emailUs,
       passwordUs,
-      dni,
       phoneUs,
       addressUs,
       idLo,
@@ -86,13 +84,12 @@ export class SignUpComponent implements OnInit {
         lastNameUs,
         emailUs,
         passwordUs,
-        dni,
         phoneUs,
         addressUs,
         idLo
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((response: any) => {
+      .subscribe((response) => {
         Swal.fire({
           icon: 'success',
           title: 'Registration successful',

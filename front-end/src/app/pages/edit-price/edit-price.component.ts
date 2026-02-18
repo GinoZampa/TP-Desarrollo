@@ -3,7 +3,7 @@ import { Component, Input, OnInit, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ClothesService } from '../../services/clothes.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Cloth } from '../../models/clothes.model';
+import { Clothe } from '../../models/clothes.model';
 import {
   FormBuilder,
   FormGroup,
@@ -20,7 +20,7 @@ import Swal from 'sweetalert2';
   styleUrl: './edit-price.component.scss',
 })
 export class EditPriceComponent implements OnInit {
-  @Input() cloth!: Cloth;
+  @Input() cloth!: Clothe;
   editPriceForm!: FormGroup;
   loading = true;
   private destroyRef = inject(DestroyRef);
@@ -38,7 +38,7 @@ export class EditPriceComponent implements OnInit {
       .subscribe((params) => {
         this.clothesService
           .getProductById(params['id'])
-          .subscribe((data: Cloth) => {
+          .subscribe((data: Clothe) => {
             this.cloth = data;
             this.loading = false;
           });

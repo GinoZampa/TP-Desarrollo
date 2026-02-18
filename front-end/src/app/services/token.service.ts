@@ -2,6 +2,13 @@ import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
+import { User } from '../models/users.model';
+
+export interface JwtPayload {
+  user: User;
+  iat?: number;
+  exp?: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +16,7 @@ import { BehaviorSubject } from 'rxjs';
 export class TokenService {
   // BehaviorSubject para manejar el estado de autenticación de forma reactiva
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
-  private currentUserSubject = new BehaviorSubject<any>(null);
+  private currentUserSubject = new BehaviorSubject<JwtPayload | null>(null);
 
   // Observables públicos que los componentes pueden suscribirse
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -28,7 +35,7 @@ export class TokenService {
 
       if (isAuth && token) {
         try {
-          const decodedToken: any = jwtDecode(token);
+          const decodedToken = jwtDecode<JwtPayload>(token);
           this.currentUserSubject.next(decodedToken);
         } catch (error) {
           console.error('Error decoding token:', error);

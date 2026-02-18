@@ -34,7 +34,6 @@ export class AuthService {
     lastNameUs: string,
     emailUs: string,
     passwordUs: string,
-    dni: string,
     phoneUs: string,
     addressUs: string,
     idLo: number
@@ -45,7 +44,6 @@ export class AuthService {
         lastNameUs,
         emailUs,
         passwordUs,
-        dni: Number(dni),
         phoneUs,
         addressUs,
         idLo: Number(idLo),

@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Cloth } from '../../models/clothes.model';
+import { Clothe } from '../../models/clothes.model';
 import { ClothesService } from '../../services/clothes.service';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
@@ -17,8 +17,8 @@ import { Subscription } from 'rxjs';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
-  products: Cloth[] = [];
-  filteredProducts: Cloth[] = [];
+  products: Clothe[] = [];
+  filteredProducts: Clothe[] = [];
   selectedCategory: string = '';
   userRole: string | null = null;
   searchDesc: string = '';
@@ -58,7 +58,7 @@ export class HomeComponent implements OnInit {
         this.filteredProducts = products;
       });
     } else {
-      this.clothesService.getProducts().subscribe((response: any) => {
+      this.clothesService.getProducts().subscribe((response) => {
         this.products = response.data;
         this.filteredProducts = response.data;
       });
@@ -78,7 +78,7 @@ export class HomeComponent implements OnInit {
       this.selectedCategory = category;
       this.clothesService
         .getProductsByType(category)
-        .subscribe((data: Cloth[]) => {
+        .subscribe((data: Clothe[]) => {
           this.filteredProducts = data;
         });
     }

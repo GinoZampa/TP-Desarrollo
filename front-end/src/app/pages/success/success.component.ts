@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { PurchaseService } from '../../services/purchase.service';
 import { switchMap, finalize } from 'rxjs';
+import { Purchase } from '../../models/purchases.model';
+import { PurchaseClothe } from '../../models/purchase-clothe.model';
 
 @Component({
   selector: 'app-success',
@@ -17,8 +19,8 @@ import { switchMap, finalize } from 'rxjs';
 export class SuccessComponent implements OnInit {
   loading = true;
   paymentId: string = '';
-  purchase!: any;
-  purchaseClothes: any[] = [];
+  purchase!: Purchase;
+  purchaseClothes: PurchaseClothe[] = [];
   error: string | null = null;
 
   private destroyRef = inject(DestroyRef);

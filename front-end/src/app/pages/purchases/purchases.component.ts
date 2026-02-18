@@ -11,6 +11,8 @@ import {
 import Swal from 'sweetalert2';
 import { firstValueFrom } from 'rxjs';
 import { TokenService } from '../../services/token.service';
+import { Purchase } from '../../models/purchases.model';
+import { PurchaseClothe } from '../../models/purchase-clothe.model';
 
 @Component({
   selector: 'app-purchases',
@@ -20,8 +22,8 @@ import { TokenService } from '../../services/token.service';
   styleUrl: './purchases.component.scss',
 })
 export class PurchasesComponent {
-  purchases: any[] = [];
-  filteredPurchases: any[] = [];
+  purchases: (Purchase & { products: PurchaseClothe[] })[] = [];
+  filteredPurchases: Purchase[] = [];
   filterForm: FormGroup;
   hasFiltered = false;
   isDropdownOpen = false;

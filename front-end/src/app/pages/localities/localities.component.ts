@@ -15,8 +15,8 @@ import { Locality } from '../../models/localities.model';
   styleUrl: './localities.component.scss'
 })
 export class LocalitiesComponent implements OnInit {
-  localities: any[] = [];
-  editingLocality: any | null = null;
+  localities: Locality[] = [];
+  editingLocality: Locality | null = null;
   editForm: FormGroup;
   isAddingNew: boolean = false;
 
@@ -153,7 +153,7 @@ export class LocalitiesComponent implements OnInit {
           });
           this.loadLocalities();
         },
-        error: (error: any) => {
+        error: (error) => {
           console.error('Error activating locality:', error);
           Swal.fire({
             icon: 'error',

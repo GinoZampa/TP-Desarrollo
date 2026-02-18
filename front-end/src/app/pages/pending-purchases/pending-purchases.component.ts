@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PurchaseService } from '../../services/purchase.service';
 import Swal from 'sweetalert2';
+import { Purchase } from '../../models/purchases.model';
 
 @Component({
   selector: 'app-pending-purchases',
@@ -12,8 +13,8 @@ import Swal from 'sweetalert2';
   styleUrl: './pending-purchases.component.scss'
 })
 export class PendingPurchasesComponent implements OnInit {
-  pendingPurchases: any[] = [];
-  sentPurchases: any[] = [];
+  pendingPurchases: Purchase[] = [];
+  sentPurchases: Purchase[] = [];
 
   private destroyRef = inject(DestroyRef);
 
@@ -28,8 +29,8 @@ export class PendingPurchasesComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (purchases) => {
-          this.pendingPurchases = purchases.filter((p: { shipment: { status: string; }; }) => p.shipment.status === 'Pending');
-          this.sentPurchases = purchases.filter((p: { shipment: { status: string; }; }) => p.shipment.status === 'Sent');
+          this.pendingPurchases = purchases.filter(p => p.shipment?.status === 'Pending');
+          this.sentPurchases = purchases.filter(p => p.shipment?.status === 'Sent');
         },
         error: (error) => {
           console.error('Error loading purchases:', error);

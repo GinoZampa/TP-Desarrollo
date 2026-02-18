@@ -3,4 +3,5 @@ export interface Locality {
     postalCode: number;
     nameLo: string;
     cost: number;
+    isActive: boolean;
 }
