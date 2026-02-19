@@ -1,4 +1,8 @@
-@if (!purchaseClothes) {
+@if (loading) {
+<div class="empty-state">
+  <h2>Loading purchase details...</h2>
+</div>
+} @else if (!purchase || !purchaseClothes) {
 <div class="empty-state">
   <h2>No purchase information</h2>
   <p>Please try again or contact support</p>

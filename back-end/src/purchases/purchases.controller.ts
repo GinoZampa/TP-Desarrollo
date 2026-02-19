@@ -33,32 +33,6 @@ export class PurchasesController {
     return this.purchasesService.findAll();
   }
 
-  @Auth(Rol.USER)
-  @Get(':idPu')
-  findOne(@Param('idPu') idPu: number): Promise<Purchase> {
-    return this.purchasesService.findOne(idPu);
-  }
-
-  @Auth(Rol.ADMIN)
-  @ApiBearerAuth()
-  @Patch(':idPu')
-  update(@Param('idPu') idPu: number, @Body() updatePurchaseDto: UpdatePurchaseDto): Promise<Purchase> {
-    return this.purchasesService.update(idPu, updatePurchaseDto);
-  }
-
-  @Auth(Rol.ADMIN)
-  @ApiBearerAuth()
-  @Delete(':idPu')
-  remove(@Param('idPu') idPu: number): Promise<void> {
-    return this.purchasesService.remove(idPu);
-  }
-
-  @Auth(Rol.USER)
-  @Get(':idPu/clothes')
-  findOneCloth(@Param('idPu') idPu: number): Promise<Purchase> {
-    return this.purchasesService.findOneCloth(idPu);
-  }
-
   @Auth(Rol.ADMIN)
   @ApiBearerAuth()
   @Get('dates/:date1/:date2')
@@ -76,5 +50,31 @@ export class PurchasesController {
   @Get('payment/:paymentId')
   findOneByPayment(@Param('paymentId') paymentId: string): Promise<Purchase> {
     return this.purchasesService.findOneByPayment(paymentId);
+  }
+
+  @Auth(Rol.USER)
+  @Get(':idPu')
+  findOne(@Param('idPu') idPu: number): Promise<Purchase> {
+    return this.purchasesService.findOne(idPu);
+  }
+
+  @Auth(Rol.USER)
+  @Get(':idPu/clothes')
+  findOneCloth(@Param('idPu') idPu: number): Promise<Purchase> {
+    return this.purchasesService.findOneCloth(idPu);
+  }
+
+  @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
+  @Patch(':idPu')
+  update(@Param('idPu') idPu: number, @Body() updatePurchaseDto: UpdatePurchaseDto): Promise<Purchase> {
+    return this.purchasesService.update(idPu, updatePurchaseDto);
+  }
+
+  @Auth(Rol.ADMIN)
+  @ApiBearerAuth()
+  @Delete(':idPu')
+  remove(@Param('idPu') idPu: number): Promise<void> {
+    return this.purchasesService.remove(idPu);
   }
 }

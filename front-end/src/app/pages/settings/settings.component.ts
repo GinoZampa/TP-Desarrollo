@@ -195,10 +195,19 @@ export class SettingsComponent implements OnInit {
   updateProfile(): void {
     if (this.profileForm.valid && this.user) {
       const formValue = this.profileForm.value;
+
+      const selectedProvince = this.provinces.find(p => p.id === formValue.province);
+      const selectedMunicipality = this.municipalities.find(m => m.id === formValue.municipality);
+
       const profileData = {
-        ...formValue,
         idUs: this.user.idUs,
-        idLo: Number(formValue.idLo)  // Convertir a número
+        nameUs: formValue.nameUs,
+        lastNameUs: formValue.lastNameUs,
+        phoneUs: formValue.phoneUs,
+        addressUs: formValue.addressUs,
+        provinceId: formValue.province,
+        provinceName: selectedProvince!.nombre,
+        municipalityName: selectedMunicipality!.nombre,
       };
 
       this.userService.updateProfile(profileData)

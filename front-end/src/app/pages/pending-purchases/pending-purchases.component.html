@@ -35,7 +35,6 @@
       </div>
     </div>
 
-    <!-- Sent Column -->
     <div class="column">
       <div class="column-header">
         <h2>Sent</h2>
@@ -66,7 +65,7 @@
             </div>
             <div class="oc-total">{{ purchase.amount | currency }}</div>
           </div>
-          <button class="btn-outline oc-action" (click)="markAsDelivered(purchase.shipment.idSh)">Mark as
+          <button class="btn-accent oc-action" (click)="markAsDelivered(purchase.shipment.idSh)">Mark as
             Delivered</button>
         </div>
       </div>
