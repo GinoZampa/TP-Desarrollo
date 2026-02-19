@@ -53,14 +53,6 @@ export class RegisterDto {
   passwordUs: string;
 
   @ApiProperty({
-    example: 12345678,
-    description: 'User DNI/ID number'
-  })
-  @IsInt()
-  @IsPositive()
-  dni: number;
-
-  @ApiProperty({
     example: '+54 9 11 1234-5678',
     description: 'User phone number',
     maxLength: 50

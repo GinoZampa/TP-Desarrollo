@@ -19,10 +19,6 @@ export class CreateUserDto {
   @MinLength(6)
   passwordUs: string;
 
-  @IsInt()
-  @IsPositive()
-  dni: number;
-
   @IsString()
   @MaxLength(50)
   phoneUs: string; // ver como lo usaria con el +54 misma duda que con localidad y provincia
