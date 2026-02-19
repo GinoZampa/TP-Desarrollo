@@ -24,7 +24,7 @@ export class Shipment {
   })
   status: STATUS;
 
-  @ManyToOne(() => ShippingCost, { eager: true, nullable: true })
+  @ManyToOne(() => ShippingCost, { eager: true, nullable: true, createForeignKeyConstraints: false })
   @JoinColumn({ name: 'shippingCostId' })
   shippingCost: ShippingCost | null;
 
