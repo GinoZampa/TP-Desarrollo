@@ -1,21 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Resend } from 'resend';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailService {
-    private resend: Resend;
+  private transporter: nodemailer.Transporter;
 
-    constructor(private configService: ConfigService) {
-        this.resend = new Resend(this.configService.get<string>('RESEND_API_KEY'));
-    }
+  constructor(private configService: ConfigService) {
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: this.configService.get<string>('MAIL_USER'),
+        pass: this.configService.get<string>('MAIL_PASS'),
+      },
+      family: 4
+    } as any);
+  }
 
-    async sendVerificationCode(email: string, code: string, name: string): Promise<void> {
-        await this.resend.emails.send({
-            from: 'Slicer\'s Shop <onboarding@resend.dev>',
-            to: email,
-            subject: 'Verify your email - Slicer\'s Shop',
-            html: `
+  async sendVerificationCode(email: string, code: string, name: string): Promise<void> {
+    await this.transporter.sendMail({
+      from: `"Slicer's Shop" <${this.configService.get<string>('MAIL_USER')}>`,
+      to: email,
+      subject: 'Verify your email - Slicer\'s Shop',
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #1a1a2e; color: #fff; border-radius: 12px;">
           <h2 style="color: #e94560; margin-bottom: 8px;">Welcome, ${name}!</h2>
           <p style="color: #ccc; margin-bottom: 24px;">Use the following code to verify your email and complete your registration:</p>
@@ -25,6 +34,6 @@ export class MailService {
           <p style="color: #999; font-size: 13px;">This code expires in 15 minutes. If you didn't request this, ignore this email.</p>
         </div>
       `,
-        });
-    }
+    });
+  }
 }
