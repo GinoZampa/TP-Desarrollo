@@ -10,6 +10,8 @@ import { TokenService } from './token.service';
 export class AuthService {
   private urlLogin = environment.apiUrl + '/auth/login';
   private urlRegister = environment.apiUrl + '/auth/register';
+  private urlVerifyEmail = environment.apiUrl + '/auth/verify-email';
+  private urlResendCode = environment.apiUrl + '/auth/resend-code';
 
   constructor(
     private http: HttpClient,
@@ -52,6 +54,14 @@ export class AuthService {
         provinceName,
         municipalityName,
       })
+  }
+
+  verifyEmail(emailUs: string, code: string): Observable<any> {
+    return this.http.post(this.urlVerifyEmail, { emailUs, code });
+  }
+
+  resendCode(emailUs: string): Observable<any> {
+    return this.http.post(this.urlResendCode, { emailUs });
   }
 
   logout(): void {

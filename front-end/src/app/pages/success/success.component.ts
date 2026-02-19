@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, NgZone, OnInit, inject, DestroyRef } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit, inject, DestroyRef, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BagService } from '../../services/bag.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,6 +25,7 @@ export class SuccessComponent implements OnInit {
   error: string | null = null;
 
   private destroyRef = inject(DestroyRef);
+  private platformId = inject(PLATFORM_ID);
 
   constructor(
     private bagService: BagService,
@@ -35,7 +37,13 @@ export class SuccessComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.loadData();
+    // Solo cargar datos en el navegador, no en SSR
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadData();
+      this.loading = false
+    } else {
+      this.loading = false;
+    }
   }
 
   private loadData() {

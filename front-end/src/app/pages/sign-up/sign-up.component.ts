@@ -113,14 +113,26 @@ export class SignUpComponent implements OnInit {
         selectedMunicipality?.nombre || '' // municipalityName
       )
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((response) => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Registration successful',
-          timer: 2000,
-          showConfirmButton: false,
-        });
-        this.router.navigate(['/login']);
+      .subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Verification code sent',
+            text: 'Check your email inbox',
+            timer: 2500,
+            showConfirmButton: false,
+          });
+          this.router.navigate(['/verify-email'], {
+            queryParams: { email: emailUs }
+          });
+        },
+        error: (err) => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Registration failed',
+            text: err.error?.message || 'Please try again',
+          });
+        }
       });
   }
 
