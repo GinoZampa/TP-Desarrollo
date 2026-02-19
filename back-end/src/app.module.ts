@@ -37,6 +37,7 @@ import { ShippingCost } from './shipping-costs/entities/shipping-cost.entity';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         timezone: '-03:00',
+        synchronize: true,
         entities: [
           Clothe,
           Purchase,
